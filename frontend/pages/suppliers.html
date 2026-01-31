@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daftar Supplier</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Daftar Supplier</h2>
+    <div id="supplierList"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadSuppliers();
+
+            function loadSuppliers() {
+                $.get('../backend/public/index.php?path=supplier/list', function(data) {
+                    if (data.status) {
+                        let html = '<table><tr><th>Nama Perusahaan</th><th>Kategori</th><th>Telepon</th><th>Email</th></tr>';
+                        data.data.forEach(s => {
+                            html += `<tr><td>${s.nama_perusahaan}</td><td>${s.kategori}</td><td>${s.telepon}</td><td>${s.email}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#supplierList').html(html);
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daftar Agent</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Daftar Agent</h2>
+    <div id="agentList"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadAgents();
+
+            function loadAgents() {
+                $.get('../backend/public/index.php?path=agent/list', function(data) {
+                    if (data.status) {
+                        let html = '<table><tr><th>User ID</th><th>Jenis Agen</th><th>Wilayah</th><th>Komisi (%)</th></tr>';
+                        data.data.forEach(a => {
+                            html += `<tr><td>${a.user_id}</td><td>${a.jenis_agen}</td><td>${a.wilayah_penjualan}</td><td>${a.komisi_persen}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#agentList').html(html);
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

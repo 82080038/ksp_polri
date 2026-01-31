@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daftar Investor</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Daftar Investor</h2>
+    <div id="investorList"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadInvestors();
+
+            function loadInvestors() {
+                $.get('../backend/public/index.php?path=investor/list', function(data) {
+                    if (data.status) {
+                        let html = '<table><tr><th>Nama</th><th>Jenis</th><th>Telepon</th><th>Email</th></tr>';
+                        data.data.forEach(i => {
+                            html += `<tr><td>${i.nama}</td><td>${i.jenis}</td><td>${i.telepon}</td><td>${i.email}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#investorList').html(html);
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

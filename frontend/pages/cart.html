@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keranjang Belanja</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Keranjang Belanja</h2>
+    <div id="cartItems"></div>
+    <button id="checkoutBtn">Checkout</button>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadCart();
+
+            function loadCart() {
+                $.get('../backend/public/index.php?path=cart/list', function(data) {
+                    if (data.status) {
+                        let html = '<table><tr><th>Produk</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr>';
+                        let total = 0;
+                        data.data.forEach(c => {
+                            const subtotal = c.harga * c.qty;
+                            total += subtotal;
+                            html += `
+                                <tr>
+                                    <td>${c.nama_produk}</td>
+                                    <td>Rp ${c.harga}</td>
+                                    <td><input type="number" class="qty-input" data-id="${c.produk_id}" value="${c.qty}" min="1"></td>
+                                    <td>Rp ${subtotal}</td>
+                                    <td><button class="remove-item" data-id="${c.produk_id}">Hapus</button></td>
+                                </tr>
+                            `;
+                        });
+                        html += `<tr><td colspan="3">Total</td><td>Rp ${total}</td></tr></table>`;
+                        $('#cartItems').html(html);
+                    }
+                }, 'json');
+            }
+
+            $(document).on('change', '.qty-input', function() {
+                const produkId = $(this).data('id');
+                const qty = $(this).val();
+                $.post('../backend/public/index.php?path=cart/updateQty', {produk_id: produkId, qty: qty}, function(data) {
+                    loadCart();
+                }, 'json');
+            });
+
+            $(document).on('click', '.remove-item', function() {
+                const produkId = $(this).data('id');
+                $.post('../backend/public/index.php?path=cart/remove', {produk_id: produkId}, function(data) {
+                    loadCart();
+                }, 'json');
+            });
+
+            $('#checkoutBtn').click(function() {
+                // For simplicity, create order with basic data
+                $.get('../backend/public/index.php?path=cart/list', function(cartData) {
+                    if (cartData.status && cartData.data.length > 0) {
+                        const details = cartData.data.map(c => ({
+                            produk_id: c.produk_id,
+                            qty: c.qty,
+                            harga_satuan: c.harga,
+                            diskon: 0,
+                            subtotal: c.harga * c.qty
+                        }));
+                        const total = details.reduce((sum, d) => sum + d.subtotal, 0);
+                        $.post('../backend/public/index.php?path=order/create', {
+                            total_harga: total,
+                            total_bayar: total,
+                            metode_pengambilan: 'DI_TOKO',
+                            metode_pembayaran: 'TUNAI',
+                            details: JSON.stringify(details)
+                        }, function(orderData) {
+                            if (orderData.status) {
+                                alert('Order berhasil dibuat');
+                                $.post('../backend/public/index.php?path=cart/clear', {}, function() {
+                                    loadCart();
+                                }, 'json');
+                            } else {
+                                alert(orderData.message);
+                            }
+                        }, 'json');
+                    } else {
+                        alert('Keranjang kosong');
+                    }
+                }, 'json');
+            });
+        });
+    </script>
+</body>
+</html>
