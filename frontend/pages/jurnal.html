@@ -1,91 +1,152 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Jurnal Umum</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Jurnal Umum</h2>
     <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
-    
+
     <h3>Tambah Jurnal</h3>
     <form id="jurnalForm">
-        <input type="date" name="tanggal" required><br>
-        <textarea name="deskripsi" placeholder="Deskripsi Jurnal" required></textarea><br>
-        
+        <label>Tanggal</label><br>
+        <input type="date" name="tanggal" id="tanggal" required><br>
+        <label>Deskripsi</label><br>
+        <textarea name="deskripsi" id="deskripsi" placeholder="Deskripsi Jurnal" required></textarea><br>
+
         <h4>Detail Jurnal</h4>
-        <div id="jurnalDetails">
-            <div class="detail-row">
-                <select name="account_id[]" class="account-select" required>
-                    <option value="">Pilih Akun</option>
-                </select>
-                <input type="number" name="debit[]" placeholder="Debit" step="0.01" value="0">
-                <input type="number" name="kredit[]" placeholder="Kredit" step="0.01" value="0">
-            </div>
-            <div class="detail-row">
-                <select name="account_id[]" class="account-select" required>
-                    <option value="">Pilih Akun</option>
-                </select>
-                <input type="number" name="debit[]" placeholder="Debit" step="0.01" value="0">
-                <input type="number" name="kredit[]" placeholder="Kredit" step="0.01" value="0">
-            </div>
-        </div>
+        <div id="jurnalDetails"></div>
         <button type="button" id="addRow">Tambah Baris</button><br><br>
-        <button type="submit">Simpan Jurnal</button>
+        <div id="balanceInfo"></div>
+        <button type="submit" id="submitBtn">Simpan Jurnal</button>
     </form>
 
     <h3>Daftar Jurnal</h3>
-    <div id="jurnalList"></div>
+    <div id="jurnalList">Memuat data...</div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            loadAccounts();
+        $(document).ready(function () {
+            loadAccounts().then(() => {
+                addRow();
+                addRow();
+            });
             loadJurnal();
 
-            $('#addRow').on('click', function() {
-                let row = $('.detail-row:first').clone();
-                row.find('input').val('0');
-                row.find('select').val('');
-                $('#jurnalDetails').append(row);
+            $('#addRow').on('click', function () {
+                addRow();
             });
 
-            $('#jurnalForm').on('submit', function(e) {
+            $('#jurnalDetails').on('input', 'input[name="debit[]"], input[name="kredit[]"]', updateBalanceInfo);
+
+            $('#jurnalForm').on('submit', function (e) {
                 e.preventDefault();
-                $.post('../backend/public/index.php?path=accounting/jurnal/create', $(this).serialize(), function(data) {
-                    alert(data.message);
+                const btn = $('#submitBtn');
+                btn.prop('disabled', true).text('Memproses...');
+                $('#balanceInfo').text('');
+
+                if (!validateBalance()) {
+                    btn.prop('disabled', false).text('Simpan Jurnal');
+                    return;
+                }
+
+                $.post('../backend/public/index.php?path=accounting/jurnal/create', $(this).serialize(), function (data) {
+                    alert(data.message || '');
                     if (data.status) {
                         $('#jurnalForm')[0].reset();
+                        $('#jurnalDetails').empty();
+                        addRow();
+                        addRow();
                         loadJurnal();
                     }
-                }, 'json');
+                }, 'json').fail(function () {
+                    alert('Gagal menyimpan jurnal');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Simpan Jurnal');
+                    updateBalanceInfo();
+                });
             });
 
+            function addRow() {
+                const row = $(`
+                    <div class="detail-row">
+                        <select name="account_id[]" class="account-select" required></select>
+                        <input type="number" name="debit[]" placeholder="Debit" step="0.01" value="0">
+                        <input type="number" name="kredit[]" placeholder="Kredit" step="0.01" value="0">
+                    </div>
+                `);
+                row.find('select').html($('#accountOptions').html());
+                $('#jurnalDetails').append(row);
+            }
+
+            function updateBalanceInfo() {
+                let totalDebit = 0, totalKredit = 0;
+                $('input[name="debit[]"]').each(function () { totalDebit += parseFloat($(this).val() || 0); });
+                $('input[name="kredit[]"]').each(function () { totalKredit += parseFloat($(this).val() || 0); });
+
+                const diff = totalDebit - totalKredit;
+                const status = Math.abs(diff) < 0.0001 ? '✅ Seimbang' : '⚠️ Belum seimbang';
+                $('#balanceInfo').text(`${status} | Total Debit: ${formatRupiah(totalDebit)} | Total Kredit: ${formatRupiah(totalKredit)}`);
+                return Math.abs(diff) < 0.0001;
+            }
+
+            function validateBalance() {
+                let filled = 0;
+                $('select[name="account_id[]"]').each(function (i) {
+                    const debit = parseFloat($('input[name="debit[]"]').eq(i).val() || 0);
+                    const kredit = parseFloat($('input[name="kredit[]"]').eq(i).val() || 0);
+                    if (debit > 0 || kredit > 0) filled++;
+                });
+                if (filled < 2) {
+                    alert('Minimal 2 baris detail dengan nilai.');
+                    return false;
+                }
+                if (!updateBalanceInfo()) {
+                    alert('Total debit dan kredit harus seimbang.');
+                    return false;
+                }
+                return true;
+            }
+
             function loadAccounts() {
-                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
+                return $.get('../backend/public/index.php?path=accounting/coa/list', function (data) {
                     if (data.status) {
                         let options = '<option value="">Pilih Akun</option>';
                         data.data.forEach(a => {
                             options += `<option value="${a.id}">${a.kode_akun} - ${a.nama_akun}</option>`;
                         });
+                        $('<div id="accountOptions" class="d-none"></div>').html(options).appendTo('body');
                         $('.account-select').html(options);
                     }
                 }, 'json');
             }
 
             function loadJurnal() {
-                $.get('../backend/public/index.php?path=accounting/jurnal/list', function(data) {
-                    if (data.status) {
+                $('#jurnalList').html('Memuat data...');
+                $.get('../backend/public/index.php?path=accounting/jurnal/list', function (data) {
+                    if (data.status && data.data.length) {
                         let html = '<table border="1"><tr><th>Tanggal</th><th>Nomor</th><th>Deskripsi</th></tr>';
                         data.data.forEach(j => {
                             html += `<tr><td>${j.tanggal}</td><td>${j.nomor_jurnal}</td><td>${j.deskripsi}</td></tr>`;
                         });
                         html += '</table>';
                         $('#jurnalList').html(html);
+                    } else {
+                        $('#jurnalList').html('Belum ada jurnal.');
                     }
-                }, 'json');
+                }, 'json').fail(function () {
+                    $('#jurnalList').html('Gagal memuat jurnal.');
+                });
+            }
+
+            function formatRupiah(angka) {
+                return 'Rp ' + parseFloat(angka || 0).toLocaleString('id-ID');
             }
         });
     </script>
 </body>
+
 </html>

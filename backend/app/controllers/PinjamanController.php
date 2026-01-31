@@ -1,6 +1,7 @@
 <?php
 // app/controllers/PinjamanController.php
 require_once '../app/models/Pinjaman.php';
+require_once '../app/core/AuditLogger.php';
 require_once '../app/views/json.php';
 
 class PinjamanController {
@@ -14,7 +15,7 @@ class PinjamanController {
 
         $pinjaman = new Pinjaman();
         if ($pinjaman->create($data)) {
-            // Audit
+            AuditLogger::log($_SESSION['user_id'] ?? null, 'CREATE', 'pinjaman', null, null, $data);
             jsonResponse(true, 'Pinjaman diajukan');
         } else {
             jsonResponse(false, 'Gagal');
@@ -27,8 +28,9 @@ class PinjamanController {
         $status = ($aksi === 'SETUJUI') ? 'DISETUJUI' : 'DITOLAK';
 
         $pinjaman = new Pinjaman();
+        $before = $pinjaman->getDetail($id);
         if ($pinjaman->approve($id, $status)) {
-            // Audit
+            AuditLogger::log($_SESSION['user_id'] ?? null, 'UPDATE', 'pinjaman', $id, $before, ['status' => $status]);
             jsonResponse(true, "Pinjaman $status");
         } else {
             jsonResponse(false, 'Gagal');

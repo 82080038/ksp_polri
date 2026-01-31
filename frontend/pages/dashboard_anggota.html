@@ -1,18 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
+
 <head>
-    <title>Dashboard Anggota</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KSP POLRI">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" href="../assets/icons/icon-192x192.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/icon-32x32.png">
+    <title>Dashboard Anggota - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
-    <h2>Dashboard Anggota</h2>
-    <nav>
-        <a href="#" id="saldoLink">Saldo Simpanan</a>
-        <a href="#" id="pinjamanLink">Pinjaman Saya</a>
-        <a href="#" id="shuLink">SHU</a>
+    <!-- Header -->
+    <header class="ksp-header">
+        <div class="ksp-container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Dashboard Anggota KSP POLRI</h1>
+                <div class="d-flex align-items-center gap-3">
+                    <?php include '../includes/notification_component.html'; ?>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <?php echo $_SESSION['username'] ?? 'User'; ?>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html">Profil</a></li>
+                            <li><a class="dropdown-item" href="mfa_settings.html">Pengaturan MFA</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="../backend/public/index.php?path=auth/logout">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="ksp-nav navbar navbar-expand-lg navbar-dark">
+        <div class="ksp-container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#saldo" id="saldoLink">💰 Saldo Simpanan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pinjaman" id="pinjamanLink">💳 Pinjaman Saya</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#shu" id="shuLink">🎯 SHU</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#angsuran" id="angsuranLink">📊 Angsuran</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    <div id="content"></div>
+
+    <!-- Main Content -->
+    <main class="ksp-container py-4">
+        <!-- Stats Cards -->
+        <div class="ksp-dashboard-grid mb-4" id="statsCards">
+            <div class="ksp-stat-card">
+                <div class="stat-number" id="saldoTotal">0</div>
+                <div class="stat-label">Total Saldo</div>
+            </div>
+            <div class="ksp-stat-card">
+                <div class="stat-number" id="pinjamanAktif">0</div>
+                <div class="stat-label">Pinjaman Aktif</div>
+            </div>
+            <div class="ksp-stat-card">
+                <div class="stat-number" id="shuTotal">0</div>
+                <div class="stat-label">Total SHU</div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content" class="ksp-card card p-4">
+            <div class="text-center py-5">
+                <div class="ksp-spinner mb-3"></div>
+                <p>Memuat data dashboard...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/anggota_dashboard.js"></script>
+    <!-- PWA Service Worker Registration -->
+    <script src="../assets/js/pwa.js"></script>
 </body>
+
 </html>

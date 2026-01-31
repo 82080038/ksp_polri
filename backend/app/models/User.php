@@ -11,7 +11,7 @@ class User {
 
     public function authenticate($username, $password) {
         $stmt = $this->db->prepare("
-            SELECT users.id, roles.name 
+            SELECT users.id, users.password, roles.name 
             FROM users 
             JOIN roles ON roles.id = users.role_id
             WHERE username = ? AND is_active = 1

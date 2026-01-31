@@ -447,6 +447,339 @@ class Router {
                 require '../app/controllers/NotifikasiController.php';
                 NotifikasiController::getAllNotifications();
                 break;
+            // Security Audit routes
+            case 'security/runAudit':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/SecurityController.php';
+                SecurityController::runAudit();
+                break;
+            case 'security/getAuditLogs':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/SecurityController.php';
+                SecurityController::getAuditLogs();
+                break;
+            case 'security/getSettings':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/SecurityController.php';
+                SecurityController::getSecuritySettings();
+                break;
+            case 'security/updateSetting':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/SecurityController.php';
+                SecurityController::updateSecuritySetting();
+                break;
+            case 'security/getCSRFToken':
+                Auth::requireLogin();
+                require '../app/controllers/SecurityController.php';
+                SecurityController::getCSRFToken();
+                break;
+            case 'security/generateReport':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/SecurityController.php';
+                SecurityController::generateSecurityReport();
+                break;
+            case 'security/test':
+                // WARNING: This endpoint is for testing only - REMOVE IN PRODUCTION
+                require '../app/controllers/SecurityController.php';
+                SecurityController::testEndpoint();
+                break;
+            // MFA (Multi-Factor Authentication) routes
+            case 'mfa/enable':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::enableMFA();
+                break;
+            case 'mfa/disable':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::disableMFA();
+                break;
+            case 'mfa/status':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::getMFAStatus();
+                break;
+            case 'mfa/sendChallenge':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::sendMFAChallenge();
+                break;
+            case 'mfa/verify':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::verifyMFA();
+                break;
+            case 'mfa/qrCode':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::getQRCode();
+                break;
+            case 'mfa/backupCodes':
+                Auth::requireLogin();
+                require '../app/controllers/MFAController.php';
+                MFAController::generateBackupCodes();
+                break;
+            case 'mfa/settings':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/MFAController.php';
+                MFAController::getMFASettings();
+                break;
+            case 'mfa/forceEnable':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/MFAController.php';
+                MFAController::forceEnableMFA();
+                break;
+            case 'mfa/forceDisable':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/MFAController.php';
+                MFAController::forceDisableMFA();
+                break;
+            case 'mfa/cleanExpired':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/MFAController.php';
+                MFAController::cleanExpiredCodes();
+                break;
+            // Backup Management routes
+            case 'backup/stats':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::getBackupStats();
+                break;
+            case 'backup/run':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::runManualBackup();
+                break;
+            case 'backup/list':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::listBackupFiles();
+                break;
+            case 'backup/download':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::downloadBackup();
+                break;
+            case 'backup/delete':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::deleteBackup();
+                break;
+            case 'backup/restore':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::restoreBackup();
+                break;
+            case 'backup/checkPermissions':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/BackupController.php';
+                BackupController::checkBackupPermissions();
+                break;
+            // Reporting & Export routes
+            case 'reporting/getAvailableReports':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::getAvailableReports();
+                break;
+            case 'reporting/exportAnggotaCSV':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::exportAnggotaCSV();
+                break;
+            case 'reporting/exportSimpananCSV':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::exportSimpananCSV();
+                break;
+            case 'reporting/exportPinjamanCSV':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::exportPinjamanCSV();
+                break;
+            case 'reporting/generatePDFReport':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::generatePDFReport();
+                break;
+            case 'reporting/scheduleReport':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/ReportingController.php';
+                ReportingController::scheduleReport();
+                break;
+            // Voting System routes
+            case 'voting/getRATAgendas':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getRATAgendas();
+                break;
+            case 'voting/getRATAgenda':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getRATAgenda();
+                break;
+            case 'voting/createRATAgenda':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/VotingController.php';
+                VotingController::createRATAgenda();
+                break;
+            case 'voting/updateRATAgenda':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/VotingController.php';
+                VotingController::updateRATAgenda();
+                break;
+            case 'voting/getVotingTopics':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getVotingTopics();
+                break;
+            case 'voting/createVotingTopic':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/VotingController.php';
+                VotingController::createVotingTopic();
+                break;
+            case 'voting/submitVote':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::submitVote();
+                break;
+            case 'voting/getResults':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getVotingResults();
+                break;
+            case 'voting/checkVoteStatus':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::checkVoteStatus();
+                break;
+            case 'voting/registerForRAT':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::registerForRAT();
+                break;
+            case 'voting/getParticipants':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/VotingController.php';
+                VotingController::getRATParticipants();
+                break;
+            case 'voting/markAttended':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/VotingController.php';
+                VotingController::markAttended();
+                break;
+            case 'voting/getStats':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getVotingStats();
+                break;
+            case 'voting/getActiveVotings':
+                Auth::requireLogin();
+                require '../app/controllers/VotingController.php';
+                VotingController::getActiveVotings();
+                break;
+            // Forum routes
+            case 'forum/getCategories':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getCategories();
+                break;
+            case 'forum/getThreads':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getThreads();
+                break;
+            case 'forum/getThread':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getThread();
+                break;
+            case 'forum/createThread':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::createThread();
+                break;
+            case 'forum/createPost':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::createPost();
+                break;
+            case 'forum/search':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::search();
+                break;
+            case 'forum/subscribe':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::subscribe();
+                break;
+            case 'forum/unsubscribe':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::unsubscribe();
+                break;
+            case 'forum/checkSubscription':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::checkSubscription();
+                break;
+            case 'forum/getStats':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getStats();
+                break;
+            case 'forum/getUserProfile':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getUserProfile();
+                break;
+            case 'forum/reportPost':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::reportPost();
+                break;
+            case 'forum/getSubscriptions':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getSubscriptions();
+                break;
+            case 'forum/markAsRead':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::markAsRead();
+                break;
+            case 'forum/getRecentActivity':
+                Auth::requireLogin();
+                require '../app/controllers/ForumController.php';
+                ForumController::getRecentActivity();
+                break;
             default:
                 echo json_encode(['status' => false, 'message' => 'Endpoint not found']);
         }

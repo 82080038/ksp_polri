@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Chart of Accounts</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Chart of Accounts (Kode Akun)</h2>
     <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
-    
-    <h3>Tambah Kode Akun</h3>
+
+    <h3>Tambah / Ubah Kode Akun</h3>
     <form id="coaForm">
-        <input type="text" name="kode_akun" placeholder="Kode Akun (e.g. 1101)" required><br>
-        <input type="text" name="nama_akun" placeholder="Nama Akun" required><br>
-        <select name="kategori" required>
+        <input type="hidden" name="id" id="coaId">
+        <input type="text" name="kode_akun" id="kodeAkun" placeholder="Kode Akun (e.g. 1101)" required><br>
+        <input type="text" name="nama_akun" id="namaAkun" placeholder="Nama Akun" required><br>
+        <select name="kategori" id="kategori" required>
             <option value="">Pilih Kategori</option>
             <option value="ASET">Aset</option>
             <option value="KEWAJIBAN">Kewajiban</option>
@@ -20,41 +23,102 @@
             <option value="PENDAPATAN">Pendapatan</option>
             <option value="BEBAN">Beban</option>
         </select><br>
-        <input type="number" name="saldo_awal" placeholder="Saldo Awal" step="0.01" value="0"><br>
-        <button type="submit">Simpan</button>
+        <input type="number" name="saldo_awal" id="saldoAwal" placeholder="Saldo Awal" step="0.01" value="0"><br>
+        <button type="submit" id="saveBtn">Simpan</button>
+        <button type="button" id="resetBtn">Reset</button>
     </form>
+    <div id="formMessage"></div>
 
     <h3>Daftar Kode Akun</h3>
-    <div id="coaList"></div>
+    <div id="coaList">Memuat data...</div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadCoa();
 
-            $('#coaForm').on('submit', function(e) {
+            $('#coaForm').on('submit', function (e) {
                 e.preventDefault();
-                $.post('../backend/public/index.php?path=accounting/coa/create', $(this).serialize(), function(data) {
-                    alert(data.message);
+                const id = $('#coaId').val();
+                const path = id ? 'accounting/coa/update' : 'accounting/coa/create';
+                const btn = $('#saveBtn');
+                btn.prop('disabled', true).text('Memproses...');
+                $('#formMessage').text('');
+
+                $.post(`../backend/public/index.php?path=${path}`, $(this).serialize(), function (data) {
+                    $('#formMessage').text(data.message || '');
                     if (data.status) {
-                        $('#coaForm')[0].reset();
+                        resetForm();
                         loadCoa();
+                    }
+                }, 'json').fail(function () {
+                    $('#formMessage').text('Gagal memproses permintaan');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Simpan');
+                });
+            });
+
+            $('#resetBtn').on('click', function () {
+                resetForm();
+            });
+
+            function resetForm() {
+                $('#coaId').val('');
+                $('#coaForm')[0].reset();
+                $('#saveBtn').text('Simpan');
+            }
+
+            function loadCoa() {
+                $('#coaList').html('Memuat data...');
+                $.get('../backend/public/index.php?path=accounting/coa/list', function (data) {
+                    if (data.status && data.data.length) {
+                        let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th><th>Aksi</th></tr>';
+                        data.data.forEach(a => {
+                            html += `<tr>
+                                <td>${a.kode_akun}</td>
+                                <td>${a.nama_akun}</td>
+                                <td>${a.kategori}</td>
+                                <td>${formatRupiah(a.saldo_awal)}</td>
+                                <td>
+                                    <button class="btn-edit" data-id="${a.id}">Edit</button>
+                                    <button class="btn-delete" data-id="${a.id}">Hapus</button>
+                                </td>
+                            </tr>`;
+                        });
+                        html += '</table>';
+                        $('#coaList').html(html);
+                    } else {
+                        $('#coaList').html('Belum ada kode akun.');
+                    }
+                }, 'json').fail(function () {
+                    $('#coaList').html('Gagal memuat data.');
+                });
+            }
+
+            $('#coaList').on('click', '.btn-edit', function () {
+                const id = $(this).data('id');
+                $.get('../backend/public/index.php?path=accounting/coa/detail&id=' + id, function (res) {
+                    if (res.status) {
+                        $('#coaId').val(res.data.id);
+                        $('#kodeAkun').val(res.data.kode_akun);
+                        $('#namaAkun').val(res.data.nama_akun);
+                        $('#kategori').val(res.data.kategori);
+                        $('#saldoAwal').val(res.data.saldo_awal);
+                        $('#saveBtn').text('Update');
+                    } else {
+                        alert(res.message || 'Data tidak ditemukan');
                     }
                 }, 'json');
             });
 
-            function loadCoa() {
-                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
-                    if (data.status) {
-                        let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th></tr>';
-                        data.data.forEach(a => {
-                            html += `<tr><td>${a.kode_akun}</td><td>${a.nama_akun}</td><td>${a.kategori}</td><td>${formatRupiah(a.saldo_awal)}</td></tr>`;
-                        });
-                        html += '</table>';
-                        $('#coaList').html(html);
-                    }
+            $('#coaList').on('click', '.btn-delete', function () {
+                const id = $(this).data('id');
+                if (!confirm('Hapus kode akun ini?')) return;
+                $.post('../backend/public/index.php?path=accounting/coa/delete', { id: id }, function (res) {
+                    alert(res.message || '');
+                    if (res.status) loadCoa();
                 }, 'json');
-            }
+            });
 
             function formatRupiah(angka) {
                 return 'Rp ' + parseFloat(angka).toLocaleString('id-ID');
@@ -62,4 +126,5 @@
         });
     </script>
 </body>
+
 </html>

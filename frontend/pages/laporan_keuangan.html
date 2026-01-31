@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Laporan Keuangan</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Laporan Keuangan</h2>
     <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
-    
+
     <h3>Neraca Saldo</h3>
     <form id="neracaForm">
         <input type="date" name="start_date" placeholder="Tanggal Mulai">
         <input type="date" name="end_date" placeholder="Tanggal Akhir">
-        <button type="submit">Tampilkan Neraca Saldo</button>
+        <button type="submit" id="neracaBtn">Tampilkan Neraca Saldo</button>
     </form>
-    <div id="neracaContent"></div>
+    <div id="neracaContent">Silakan pilih rentang tanggal (opsional) lalu klik tampilkan.</div>
 
     <h3>Laba Rugi</h3>
     <form id="labaRugiForm">
         <input type="date" name="start_date" required placeholder="Tanggal Mulai">
         <input type="date" name="end_date" required placeholder="Tanggal Akhir">
-        <button type="submit">Tampilkan Laba Rugi</button>
+        <button type="submit" id="labaRugiBtn">Tampilkan Laba Rugi</button>
     </form>
-    <div id="labaRugiContent"></div>
+    <div id="labaRugiContent">Isi tanggal mulai & akhir lalu klik tampilkan.</div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#neracaForm').on('submit', function(e) {
+        $(document).ready(function () {
+            $('#neracaForm').on('submit', function (e) {
                 e.preventDefault();
-                let params = $(this).serialize();
-                $.get('../backend/public/index.php?path=accounting/neracaSaldo&' + params, function(data) {
-                    if (data.status) {
+                const params = $(this).serialize();
+                const btn = $('#neracaBtn');
+                btn.prop('disabled', true).text('Memuat...');
+                $('#neracaContent').html('Memuat data...');
+
+                $.get('../backend/public/index.php?path=accounting/neracaSaldo&' + params, function (data) {
+                    if (data.status && data.data.length) {
                         let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th><th>Debit</th><th>Kredit</th><th>Saldo Akhir</th></tr>';
                         let totalDebit = 0, totalKredit = 0;
                         data.data.forEach(a => {
@@ -42,36 +48,54 @@
                         html += `<tr><td colspan="4"><strong>Total</strong></td><td><strong>${formatRupiah(totalDebit)}</strong></td><td><strong>${formatRupiah(totalKredit)}</strong></td><td></td></tr>`;
                         html += '</table>';
                         $('#neracaContent').html(html);
+                    } else if (data.status) {
+                        $('#neracaContent').html('Data neraca saldo kosong untuk rentang ini.');
+                    } else {
+                        $('#neracaContent').html(data.message || 'Gagal memuat neraca saldo');
                     }
-                }, 'json');
+                }, 'json').fail(function () {
+                    $('#neracaContent').html('Gagal memuat neraca saldo.');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Tampilkan Neraca Saldo');
+                });
             });
 
-            $('#labaRugiForm').on('submit', function(e) {
+            $('#labaRugiForm').on('submit', function (e) {
                 e.preventDefault();
-                let params = $(this).serialize();
-                $.get('../backend/public/index.php?path=accounting/labaRugi&' + params, function(data) {
+                const params = $(this).serialize();
+                const btn = $('#labaRugiBtn');
+                btn.prop('disabled', true).text('Memuat...');
+                $('#labaRugiContent').html('Memuat data...');
+
+                $.get('../backend/public/index.php?path=accounting/labaRugi&' + params, function (data) {
                     if (data.status) {
                         let html = '<h4>Pendapatan</h4><table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Jumlah</th></tr>';
-                        data.data.pendapatan.forEach(p => {
+                        (data.data.pendapatan || []).forEach(p => {
                             html += `<tr><td>${p.kode_akun}</td><td>${p.nama_akun}</td><td>${formatRupiah(p.saldo)}</td></tr>`;
                         });
-                        html += `<tr><td colspan="2"><strong>Total Pendapatan</strong></td><td><strong>${formatRupiah(data.data.total_pendapatan)}</strong></td></tr>`;
+                        html += `<tr><td colspan="2"><strong>Total Pendapatan</strong></td><td><strong>${formatRupiah(data.data.total_pendapatan || 0)}</strong></td></tr>`;
                         html += '</table>';
 
                         html += '<h4>Beban</h4><table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Jumlah</th></tr>';
-                        data.data.beban.forEach(b => {
+                        (data.data.beban || []).forEach(b => {
                             html += `<tr><td>${b.kode_akun}</td><td>${b.nama_akun}</td><td>${formatRupiah(b.saldo)}</td></tr>`;
                         });
-                        html += `<tr><td colspan="2"><strong>Total Beban</strong></td><td><strong>${formatRupiah(data.data.total_beban)}</strong></td></tr>`;
+                        html += `<tr><td colspan="2"><strong>Total Beban</strong></td><td><strong>${formatRupiah(data.data.total_beban || 0)}</strong></td></tr>`;
                         html += '</table>';
 
                         let labaRugiClass = data.data.laba_rugi >= 0 ? 'profit' : 'loss';
                         let labaRugiText = data.data.laba_rugi >= 0 ? 'Laba Bersih' : 'Rugi Bersih';
-                        html += `<h4 class="${labaRugiClass}">${labaRugiText}: ${formatRupiah(Math.abs(data.data.laba_rugi))}</h4>`;
-                        
+                        html += `<h4 class="${labaRugiClass}">${labaRugiText}: ${formatRupiah(Math.abs(data.data.laba_rugi || 0))}</h4>`;
+
                         $('#labaRugiContent').html(html);
+                    } else {
+                        $('#labaRugiContent').html(data.message || 'Gagal memuat laporan laba rugi');
                     }
-                }, 'json');
+                }, 'json').fail(function () {
+                    $('#labaRugiContent').html('Gagal memuat laporan laba rugi.');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Tampilkan Laba Rugi');
+                });
             });
 
             function formatRupiah(angka) {
@@ -80,8 +104,14 @@
         });
     </script>
     <style>
-        .profit { color: green; }
-        .loss { color: red; }
+        .profit {
+            color: green;
+        }
+
+        .loss {
+            color: red;
+        }
     </style>
 </body>
+
 </html>

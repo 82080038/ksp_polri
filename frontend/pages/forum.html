@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum Anggota - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .forum-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .forum-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .forum-title {
+            color: #2196F3;
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .forum-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 4px solid #2196F3;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .category-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            opacity: 0.8;
+        }
+
+        .category-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-description {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .thread-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .thread-item {
+            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .thread-item:hover {
+            background: #f8f9fa;
+        }
+
+        .thread-item:last-child {
+            border-bottom: none;
+        }
+
+        .thread-icon {
+            width: 40px;
+            height: 40px;
+            background: #e3f2fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .thread-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .thread-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .thread-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .thread-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .thread-stat-number {
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 1rem;
+        }
+
+        .forum-actions {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .btn-forum {
+            background: linear-gradient(135deg, #2196F3, #1976d2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-forum:hover {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            transform: translateY(-1px);
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .thread-detail {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .thread-header {
+            background: linear-gradient(135deg, #2196F3, #1976d2);
+            color: white;
+            padding: 2rem;
+        }
+
+        .thread-title-large {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .thread-meta-large {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .post-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            background: #e3f2fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .post-author {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .post-content {
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .post-action {
+            color: #666;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.2s;
+        }
+
+        .post-action:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .reply-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .reply-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        .reply-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .new-thread-form {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item a {
+            color: #2196F3;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2196F3;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .thread-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .thread-stats {
+                align-self: flex-end;
+                margin-top: 0.5rem;
+            }
+
+            .forum-title {
+                font-size: 1.8rem;
+            }
+
+            .thread-title-large {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="forum-container">
+        <!-- Header -->
+        <div class="forum-header">
+            <h1 class="forum-title">💬 Forum Anggota KSP POLRI</h1>
+            <p class="forum-subtitle">Tempat diskusi dan berbagi informasi antar anggota</p>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" id="breadcrumbNav" style="display:none;">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#" onclick="showCategories()">Forum</a></li>
+                <li class="breadcrumb-item active" id="breadcrumbCurrent">Kategori</li>
+            </ol>
+        </nav>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Cari thread, post, atau anggota...">
+        </div>
+
+        <!-- Forum Actions -->
+        <div class="forum-actions">
+            <button class="btn-forum" onclick="showNewThreadForm()">✏️ Buat Thread Baru</button>
+            <button class="btn btn-outline-primary" onclick="showCategories()">🏠 Kembali ke Kategori</button>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="statsBar" style="display:none;">
+            <div class="stat-item">
+                <span class="stat-number" id="statCategories">0</span>
+                <span class="stat-label">Kategori</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="statThreads">0</span>
+                <span class="stat-label">Thread</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="statPosts">0</span>
+                <span class="stat-label">Post</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="statMembers">0</span>
+                <span class="stat-label">Anggota Aktif</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="forumContent">
+            <!-- Content will be loaded here -->
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Memuat forum...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentView = 'categories';
+        let currentCategoryId = null;
+        let currentThreadId = null;
+
+        $(document).ready(function() {
+            loadForumStats();
+            showCategories();
+
+            // Search functionality
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) { // Enter key
+                    performSearch($(this).val());
+                }
+            });
+        });
+
+        function loadForumStats() {
+            $.get('../backend/public/index.php?path=forum/getStats', function(data) {
+                if (data.status) {
+                    const stats = data.data;
+                    $('#statCategories').text(stats.total_categories);
+                    $('#statThreads').text(stats.total_threads);
+                    $('#statPosts').text(stats.total_posts);
+                    $('#statMembers').text(stats.active_users_30d);
+                    $('#statsBar').show();
+                }
+            }, 'json');
+        }
+
+        function showCategories() {
+            currentView = 'categories';
+            $('#breadcrumbNav').hide();
+
+            $.get('../backend/public/index.php?path=forum/getCategories', function(data) {
+                if (data.status) {
+                    displayCategories(data.data.categories);
+                } else {
+                    $('#forumContent').html('<div class="alert alert-danger">Gagal memuat kategori forum</div>');
+                }
+            }, 'json');
+        }
+
+        function displayCategories(categories) {
+            let html = '<div class="category-grid">';
+
+            categories.forEach(category => {
+                const latestThread = category.stats?.latest_thread;
+                const latestInfo = latestThread ?
+                    `<small class="text-muted">${latestThread.title} oleh ${latestThread.author_name}</small>` :
+                    '<small class="text-muted">Belum ada thread</small>';
+
+                html += `
+                    <div class="category-card" onclick="showCategoryThreads(${category.id})">
+                        <div class="category-header">
+                            <div class="category-icon">${category.icon}</div>
+                            <div>
+                                <div class="category-name">${category.name}</div>
+                                <div class="category-description">${category.description}</div>
+                            </div>
+                        </div>
+                        <div class="category-stats">
+                            <span>${category.stats?.thread_count || 0} thread</span>
+                            <span>${category.stats?.post_count || 0} post</span>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                            ${latestInfo}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            $('#forumContent').html(html);
+        }
+
+        function showCategoryThreads(categoryId) {
+            currentView = 'threads';
+            currentCategoryId = categoryId;
+            $('#breadcrumbNav').show();
+            $('#breadcrumbCurrent').text('Threads');
+
+            const loadingHtml = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Memuat threads...</p>
+                </div>
+            `;
+            $('#forumContent').html(loadingHtml);
+
+            $.get(`../backend/public/index.php?path=forum/getThreads&category_id=${categoryId}`, function(data) {
+                if (data.status) {
+                    displayThreads(data.data.threads);
+                } else {
+                    $('#forumContent').html('<div class="alert alert-danger">Gagal memuat threads</div>');
+                }
+            }, 'json');
+        }
+
+        function displayThreads(threads) {
+            if (threads.length === 0) {
+                $('#forumContent').html(`
+                    <div class="text-center py-5">
+                        <h4>📝 Belum ada thread</h4>
+                        <p>Belum ada thread di kategori ini. Jadilah yang pertama membuat thread!</p>
+                        <button class="btn-forum" onclick="showNewThreadForm()">Buat Thread Pertama</button>
+                    </div>
+                `);
+                return;
+            }
+
+            let html = '<div class="thread-list">';
+
+            threads.forEach(thread => {
+                const timeAgo = formatTimeAgo(thread.created_at);
+                const lastReply = thread.last_reply_at !== thread.created_at ?
+                    `Balas terakhir ${formatTimeAgo(thread.last_reply_at)}` : '';
+
+                html += `
+                    <div class="thread-item" onclick="showThread(${thread.id})">
+                        <div class="thread-icon">${thread.category_icon}</div>
+                        <div class="thread-content">
+                            <div class="thread-title">${thread.title}</div>
+                            <div class="thread-meta">
+                                Oleh ${thread.author_name} (${thread.author_nrp}) • ${timeAgo}
+                                ${lastReply ? ' • ' + lastReply : ''}
+                            </div>
+                        </div>
+                        <div class="thread-stats">
+                            <div class="thread-stat-number">${thread.reply_count}</div>
+                            <div>Balas</div>
+                        </div>
+                        <div class="thread-stats">
+                            <div class="thread-stat-number">${thread.view_count}</div>
+                            <div>Dilihat</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            $('#forumContent').html(html);
+        }
+
+        function showThread(threadId) {
+            currentView = 'thread';
+            currentThreadId = threadId;
+            $('#breadcrumbCurrent').text('Thread');
+
+            const loadingHtml = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Memuat thread...</p>
+                </div>
+            `;
+            $('#forumContent').html(loadingHtml);
+
+            $.get(`../backend/public/index.php?path=forum/getThread&id=${threadId}`, function(data) {
+                if (data.status) {
+                    displayThread(data.data);
+                } else {
+                    $('#forumContent').html('<div class="alert alert-danger">Gagal memuat thread</div>');
+                }
+            }, 'json');
+        }
+
+        function displayThread(thread) {
+            let html = `
+                <div class="thread-detail">
+                    <div class="thread-header">
+                        <div class="thread-title-large">${thread.title}</div>
+                        <div class="thread-meta-large">
+                            Oleh ${thread.author_name} (${thread.author_nrp}) • ${formatTimeAgo(thread.created_at)} • ${thread.view_count} dilihat
+                        </div>
+                    </div>
+            `;
+
+            if (thread.posts && thread.posts.length > 0) {
+                thread.posts.forEach((post, index) => {
+                    const isFirstPost = index === 0;
+                    html += `
+                        <div class="post-item">
+                            <div class="post-header">
+                                <div class="post-avatar">${post.author_name.charAt(0).toUpperCase()}</div>
+                                <div>
+                                    <div class="post-author">${post.author_name} (${post.author_nrp})</div>
+                                    <div class="post-time">${formatTimeAgo(post.created_at)}</div>
+                                </div>
+                            </div>
+                            <div class="post-content">${formatPostContent(post.content)}</div>
+                            <div class="post-actions">
+                                <span class="post-action" onclick="showReplyForm(${post.id})">💬 Balas</span>
+                                ${!isFirstPost ? '<span class="post-action" onclick="reportPost(' + post.id + ')">🚨 Laporkan</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Reply form
+            html += `
+                <div class="reply-form">
+                    <h5>💬 Tulis Balasan</h5>
+                    <form id="replyForm">
+                        <textarea class="reply-textarea" name="content" placeholder="Tulis balasan Anda di sini..." required></textarea>
+                        <button type="submit" class="btn-forum">Kirim Balasan</button>
+                    </form>
+                </div>
+            `;
+
+            html += '</div>';
+            $('#forumContent').html(html);
+
+            // Handle reply form submission
+            $('#replyForm').on('submit', function(e) {
+                e.preventDefault();
+                submitReply();
+            });
+        }
+
+        function showNewThreadForm() {
+            const categories = []; // We'll need to get categories for the dropdown
+
+            // First get categories
+            $.get('../backend/public/index.php?path=forum/getCategories', function(data) {
+                if (data.status) {
+                    const categoryOptions = data.data.categories.map(cat =>
+                        `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`
+                    ).join('');
+
+                    const formHtml = `
+                        <div class="new-thread-form">
+                            <h4>✏️ Buat Thread Baru</h4>
+                            <form id="newThreadForm">
+                                <div class="form-group">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" name="category_id" required>
+                                        <option value="">Pilih kategori...</option>
+                                        ${categoryOptions}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Judul Thread</label>
+                                    <input type="text" class="form-input" name="title" placeholder="Masukkan judul thread..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Konten</label>
+                                    <textarea class="form-input form-textarea" name="content" placeholder="Tulis konten thread Anda..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-forum">Buat Thread</button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" onclick="cancelNewThread()">Batal</button>
+                            </form>
+                        </div>
+                    `;
+
+                    $('#forumContent').html(formHtml);
+
+                    // Handle form submission
+                    $('#newThreadForm').on('submit', function(e) {
+                        e.preventDefault();
+                        submitNewThread();
+                    });
+                }
+            }, 'json');
+        }
+
+        function submitNewThread() {
+            const formData = $('#newThreadForm').serialize();
+
+            $.post('../backend/public/index.php?path=forum/createThread', formData, function(data) {
+                if (data.status) {
+                    alert('Thread berhasil dibuat!');
+                    if (currentCategoryId) {
+                        showCategoryThreads(currentCategoryId);
+                    } else {
+                        showCategories();
+                    }
+                } else {
+                    alert('Gagal membuat thread: ' + data.message);
+                }
+            }, 'json');
+        }
+
+        function submitReply() {
+            const content = $('.reply-textarea').val().trim();
+
+            if (!content) {
+                alert('Konten balasan tidak boleh kosong');
+                return;
+            }
+
+            const formData = {
+                thread_id: currentThreadId,
+                content: content
+            };
+
+            $('.reply-textarea').prop('disabled', true);
+
+            $.post('../backend/public/index.php?path=forum/createPost', formData, function(data) {
+                if (data.status) {
+                    alert('Balasan berhasil dikirim!');
+                    showThread(currentThreadId); // Reload thread
+                } else {
+                    alert('Gagal mengirim balasan: ' + data.message);
+                    $('.reply-textarea').prop('disabled', false);
+                }
+            }, 'json');
+        }
+
+        function performSearch(query) {
+            if (!query.trim()) {
+                showCategories();
+                return;
+            }
+
+            $('#forumContent').html(`
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Mencari "${query}"...</p>
+                </div>
+            `);
+
+            $.get(`../backend/public/index.php?path=forum/search&q=${encodeURIComponent(query)}`, function(data) {
+                if (data.status) {
+                    displaySearchResults(data.data.results, query);
+                } else {
+                    $('#forumContent').html('<div class="alert alert-danger">Gagal melakukan pencarian</div>');
+                }
+            }, 'json');
+        }
+
+        function displaySearchResults(results, query) {
+            if (results.length === 0) {
+                $('#forumContent').html(`
+                    <div class="text-center py-5">
+                        <h4>🔍 Tidak ditemukan</h4>
+                        <p>Tidak ada hasil untuk "<strong>${query}</strong>"</p>
+                        <button class="btn btn-outline-primary" onclick="showCategories()">Kembali ke Forum</button>
+                    </div>
+                `);
+                return;
+            }
+
+            let html = `
+                <div class="mb-4">
+                    <h4>🔍 Hasil pencarian untuk "${query}"</h4>
+                    <p>Ditemukan ${results.length} hasil</p>
+                </div>
+                <div class="thread-list">
+            `;
+
+            results.forEach(result => {
+                const isThread = result.type === 'thread';
+                const title = isThread ? result.title : `Re: ${result.title}`;
+                const content = result.content.substring(0, 200) + (result.content.length > 200 ? '...' : '');
+                const timeAgo = formatTimeAgo(result.created_at);
+
+                html += `
+                    <div class="thread-item" onclick="${isThread ? 'showThread(' + result.id + ')' : 'showThread(' + result.thread_id + ')'}">
+                        <div class="thread-icon">${result.category_icon}</div>
+                        <div class="thread-content">
+                            <div class="thread-title">${title}</div>
+                            <div class="thread-meta">
+                                ${result.type === 'thread' ? 'Thread' : 'Post'} oleh ${result.author_name} • ${timeAgo} • ${result.category_name}
+                            </div>
+                            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                                ${content}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            $('#forumContent').html(html);
+        }
+
+        function cancelNewThread() {
+            if (currentCategoryId) {
+                showCategoryThreads(currentCategoryId);
+            } else {
+                showCategories();
+            }
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+            if (diffMinutes < 1) return 'Baru saja';
+            if (diffMinutes < 60) return `${diffMinutes} menit yang lalu`;
+            if (diffHours < 24) return `${diffHours} jam yang lalu`;
+            if (diffDays < 7) return `${diffDays} hari yang lalu`;
+
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function formatPostContent(content) {
+            // Simple formatting - convert line breaks to <br>
+            return content.replace(/\n/g, '<br>');
+        }
+
+        function reportPost(postId) {
+            const reason = prompt('Mengapa Anda melaporkan post ini?');
+            if (reason) {
+                $.post('../backend/public/index.php?path=forum/reportPost', {
+                    post_id: postId,
+                    reason: reason
+                }, function(data) {
+                    alert(data.message);
+                }, 'json');
+            }
+        }
+    </script>
+</body>
+</html>

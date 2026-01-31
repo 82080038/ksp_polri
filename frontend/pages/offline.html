@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
+    <style>
+        .offline-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .offline-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .offline-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #2196F3, #1976d2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-retry:hover {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            transform: translateY(-1px);
+        }
+
+        .connection-status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            color: #856404;
+        }
+
+        .connection-status.online {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-container">
+        <div class="offline-icon pulse">📱</div>
+
+        <h1 class="offline-title">Anda Sedang Offline</h1>
+
+        <div class="offline-message">
+            <p>Maaf, aplikasi KSP POLRI tidak dapat terhubung ke server saat ini.</p>
+            <p>Jangan khawatir! Beberapa fitur masih dapat digunakan secara offline:</p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Melihat data yang sudah di-cache sebelumnya</li>
+                <li>Menggunakan formulir yang sudah dimuat</li>
+                <li>Melihat notifikasi yang tersimpan</li>
+            </ul>
+        </div>
+
+        <div class="offline-actions">
+            <button class="btn-retry" id="retryBtn" onclick="checkConnection()">
+                🔄 Periksa Koneksi
+            </button>
+
+            <button class="btn btn-outline-primary" onclick="showCachedStatus()">
+                📱 Lihat Status Cache
+            </button>
+
+            <button class="btn btn-outline-secondary" onclick="clearCache()">
+                🗑️ Bersihkan Cache
+            </button>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            <strong>Status:</strong> Memeriksa koneksi...
+        </div>
+    </div>
+
+    <script>
+        let connectionCheckInterval;
+
+        // Check connection on page load
+        window.addEventListener('load', function () {
+            checkConnection();
+            connectionCheckInterval = setInterval(checkConnection, 10000); // Check every 10 seconds
+        });
+
+        // Stop checking when page is hidden
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                clearInterval(connectionCheckInterval);
+            } else {
+                connectionCheckInterval = setInterval(checkConnection, 10000);
+            }
+        });
+
+        async function checkConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+
+            const retryBtn = document.getElementById('retryBtn');
+            retryBtn.textContent = 'Memeriksa...';
+            retryBtn.disabled = true;
+
+            try {
+                const response = await fetch('/ksp_polri/frontend/manifest.json', {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                if (response.ok) {
+                    statusDiv.className = 'connection-status online';
+                    statusDiv.innerHTML = '<strong>✅ Online:</strong> Koneksi tersambung. <a href="#" onclick="reloadPage()">Muat ulang aplikasi</a>';
+
+                    setTimeout(() => {
+                        if (navigator.onLine) {
+                            reloadPage();
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error('Server not responding');
+                }
+            } catch (error) {
+                statusDiv.className = 'connection-status';
+                statusDiv.innerHTML = '<strong>❌ Offline:</strong> Tidak dapat terhubung ke server. Pastikan koneksi internet Anda aktif.';
+            } finally {
+                retryBtn.textContent = '🔄 Periksa Koneksi';
+                retryBtn.disabled = false;
+            }
+        }
+
+        function reloadPage() {
+            window.location.reload();
+        }
+
+        function showCachedStatus() {
+            if (!('caches' in window)) {
+                alert('Cache API tidak didukung di browser ini.');
+                return;
+            }
+
+            caches.keys().then(names => {
+                if (!names.length) {
+                    alert('Tidak ada cache yang tersimpan.');
+                    return;
+                }
+                const summary = [];
+                Promise.all(names.map(name => caches.open(name).then(cache => cache.keys().then(reqs => {
+                    summary.push(`${name}: ${reqs.length} item`);
+                })))).then(() => {
+                    alert('Cache tersedia:\n' + summary.join('\n'));
+                });
+            });
+        }
+
+        function clearCache() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua cache? Ini akan menghapus data offline yang tersimpan.')) {
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        Promise.all(names.map(name => caches.delete(name))).then(() => {
+                            alert('Cache berhasil dibersihkan. Halaman akan dimuat ulang.');
+                            window.location.reload();
+                        });
+                    });
+                } else {
+                    alert('Cache API tidak didukung di browser ini.');
+                }
+            }
+        }
+
+        // Register service worker if not already registered
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/ksp_polri/frontend/sw.js').catch(() => { });
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', function () {
+            console.log('Back online');
+            checkConnection();
+        });
+
+        window.addEventListener('offline', function () {
+            console.log('Gone offline');
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.className = 'connection-status';
+            statusDiv.innerHTML = '<strong>❌ Offline:</strong> Koneksi internet terputus.';
+        });
+    </script>
+</body>
+
+</html>

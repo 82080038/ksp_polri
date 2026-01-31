@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "KSP POLRI API",
+    "version": "1.0.0",
+    "description": "Ringkasan endpoint utama: auth, anggota, simpanan/pinjaman, accounting, forum, voting, notifikasi"
+  },
+  "servers": [
+    {"url": "http://localhost/ksp_polri/backend/public/index.php?path="}
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login dengan username/password",
+        "requestBody": {
+          "required": true,
+          "content": {"application/x-www-form-urlencoded": {"schema": {"type": "object","properties": {"username": {"type": "string"},"password": {"type": "string"}}}}}
+        },
+        "responses": {"200": {"description": "Status login"}}
+      }
+    },
+    "/anggota": {
+      "get": {"summary": "Daftar anggota","responses": {"200": {"description": "OK"}}}
+    },
+    "/anggota/create": {
+      "post": {
+        "summary": "Tambah anggota",
+        "requestBody": {"required": true,"content": {"application/x-www-form-urlencoded": {"schema": {"type": "object","properties": {"nrp": {"type": "string"},"nama": {"type": "string"},"pangkat": {"type": "string"},"satuan": {"type": "string"}}}}}},
+        "responses": {"200": {"description": "OK"}}
+      }
+    },
+    "/simpanan/create": {
+      "post": {"summary": "Tambah simpanan","responses": {"200": {"description": "OK"}}}
+    },
+    "/pinjaman/create": {"post": {"summary": "Ajukan pinjaman","responses": {"200": {"description": "OK"}}}},
+    "/pinjaman/approve": {"post": {"summary": "Setujui/Tolak pinjaman","responses": {"200": {"description": "OK"}}}},
+    "/accounting/coa/create": {"post": {"summary": "Tambah akun","responses": {"200": {"description": "OK"}}}},
+    "/accounting/jurnal/create": {"post": {"summary": "Input jurnal","responses": {"200": {"description": "OK"}}}},
+    "/forum/thread/create": {"post": {"summary": "Buat thread","responses": {"200": {"description": "OK"}}}},
+    "/voting/submit": {"post": {"summary": "Submit suara","responses": {"200": {"description": "OK"}}}},
+    "/notification/sendTunggakan": {"post": {"summary": "Kirim notifikasi tunggakan","responses": {"200": {"description": "OK"}}}}
+  }
+}

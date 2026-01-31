@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Voting RAT - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .voting-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .voting-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #2196F3;
+        }
+
+        .voting-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .voting-title {
+            color: #2196F3;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .voting-description {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .voting-options {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .voting-option {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .voting-option:hover {
+            border-color: #2196F3;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .voting-option.selected {
+            border-color: #2196F3;
+            background: #e3f2fd;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        }
+
+        .voting-option input[type="radio"],
+        .voting-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            margin-right: 1rem;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .option-radio.selected {
+            border-color: #2196F3;
+            background: #2196F3;
+        }
+
+        .option-radio.selected::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .option-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 1rem;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .option-checkbox.selected {
+            border-color: #2196F3;
+            background: #2196F3;
+        }
+
+        .option-checkbox.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+        }
+
+        .option-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .voting-actions {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn-vote {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-vote:hover {
+            background: linear-gradient(135deg, #388e3c, #2e7d32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-vote:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .voting-results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .results-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .result-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-label {
+            min-width: 150px;
+            font-weight: 500;
+        }
+
+        .result-bar-container {
+            flex: 1;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .result-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3, #1976d2);
+            border-radius: 15px;
+            transition: width 1s ease;
+        }
+
+        .result-count {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .voting-timer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .timer-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .timer-countdown {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .voting-completed {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #0c5460;
+        }
+
+        .completed-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .rat-agenda-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .agenda-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #2196F3;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .agenda-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .agenda-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .agenda-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .agenda-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="voting-container">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1>🗳️ Sistem Voting RAT</h1>
+            <p class="text-muted">KSP Personel POLRI</p>
+            <a href="dashboard_anggota.html" class="btn btn-outline-primary">← Kembali ke Dashboard</a>
+        </div>
+
+        <!-- Content will be loaded here -->
+        <div id="votingContent">
+            <div class="text-center py-5">
+                <div class="ksp-spinner mb-3"></div>
+                <p>Memuat data voting...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentAgendaId = null;
+        let currentTopicId = null;
+        let votingTimer = null;
+
+        $(document).ready(function () {
+            loadRATAgendas();
+        });
+
+        function loadRATAgendas() {
+            $.get('../backend/public/index.php?path=voting/getRATAgendas', function (data) {
+                if (data.status) {
+                    displayRATAgendas(data.data.agendas);
+                } else {
+                    $('#votingContent').html('<div class="alert alert-danger">Gagal memuat data RAT</div>');
+                }
+            }, 'json');
+        }
+
+        function displayRATAgendas(agendas) {
+            if (agendas.length === 0) {
+                $('#votingContent').html(`
+                    <div class="text-center py-5">
+                        <h4>📋 Tidak ada agenda RAT</h4>
+                        <p>Belum ada Rapat Anggota Tahunan yang dijadwalkan.</p>
+                        <a class="btn btn-primary mt-3" href="dashboard_pengurus.html">+ Buat Agenda RAT (Pengurus)</a>
+                    </div>
+                `);
+                return;
+            }
+
+            let html = '<div class="rat-agenda-list">';
+
+            agendas.forEach(agenda => {
+                const statusClass = 'status-' + (agenda.status || 'draft');
+                const statusText = agenda.status === 'active' ? 'Aktif' :
+                    agenda.status === 'completed' ? 'Selesai' : 'Draft';
+
+                html += `
+                    <div class="agenda-item" onclick="loadRATAgenda(${agenda.id})">
+                        <div class="agenda-title">${agenda.judul}</div>
+                        <div class="agenda-meta">
+                            Tahun ${agenda.tahun} • ${formatDateTime(agenda.tanggal_mulai)} - ${formatDateTime(agenda.tanggal_selesai)}
+                            <span class="agenda-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            $('#votingContent').html(html);
+        }
+
+        function loadRATAgenda(agendaId) {
+            currentAgendaId = agendaId;
+
+            $.get(`../backend/public/index.php?path=voting/getRATAgenda&id=${agendaId}`, function (data) {
+                if (data.status) {
+                    displayRATAgenda(data.data);
+                } else {
+                    $('#votingContent').html('<div class="alert alert-danger">Gagal memuat agenda RAT</div>');
+                }
+            }, 'json');
+        }
+
+        function displayRATAgenda(agenda) {
+            let html = `
+                <div class="voting-card">
+                    <div class="voting-header">
+                        <div class="voting-title">${agenda.judul}</div>
+                        <div class="voting-description">${agenda.deskripsi || 'Rapat Anggota Tahunan KSP POLRI'}</div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                ${formatDateTime(agenda.tanggal_mulai)} - ${formatDateTime(agenda.tanggal_selesai)}
+                            </small>
+                        </div>
+                    </div>
+                    <div id="agendaContent">
+            `;
+
+            if (agenda.topics && agenda.topics.length > 0) {
+                html += '<div id="votingTopics">';
+                agenda.topics.forEach(topic => {
+                    html += generateVotingTopicHTML(topic);
+                });
+                html += '</div>';
+            } else {
+                html += '<div class="text-center py-4"><p>Belum ada topik voting untuk agenda ini.</p><a class="btn btn-outline-primary mt-2" href="dashboard_pengurus.html">+ Buat Topik Voting (Pengurus)</a></div>';
+            }
+
+            html += `
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-outline-secondary" onclick="loadRATAgendas()">← Kembali ke Daftar Agenda</button>
+                    </div>
+                </div>
+            `;
+
+            $('#votingContent').html(html);
+        }
+
+        function generateVotingTopicHTML(topic) {
+            const now = new Date();
+            const votingStart = new Date(topic.voting_start);
+            const votingEnd = new Date(topic.voting_end);
+            const isActive = now >= votingStart && now <= votingEnd;
+            const isCompleted = now > votingEnd;
+
+            let statusHTML = '';
+            if (!isActive && !isCompleted) {
+                statusHTML = `<div class="voting-timer">
+                    <div class="timer-text">Voting belum dimulai</div>
+                    <div class="timer-countdown" id="countdown-${topic.id}">Menunggu...</div>
+                </div>`;
+            } else if (isActive) {
+                statusHTML = `<div class="voting-timer">
+                    <div class="timer-text">Voting sedang berlangsung</div>
+                    <div class="timer-countdown" id="countdown-${topic.id}">Berakhir dalam...</div>
+                </div>`;
+                startCountdown(topic.id, votingEnd);
+            } else if (isCompleted) {
+                statusHTML = `<div class="voting-completed">
+                    <div class="completed-icon">✅</div>
+                    <h5>Voting telah selesai</h5>
+                    <p>Total suara: ${topic.total_votes || 0}</p>
+                </div>`;
+            }
+
+            let optionsHTML = '';
+            if (topic.options && topic.options.length > 0) {
+                const inputType = topic.tipe === 'multiple_choice' ? 'checkbox' : 'radio';
+                const optionClass = inputType === 'checkbox' ? 'option-checkbox' : 'option-radio';
+
+                optionsHTML = '<div class="voting-options">';
+                topic.options.forEach((option, index) => {
+                    const optionId = `option-${topic.id}-${index}`;
+                    optionsHTML += `
+                        <label class="voting-option" for="${optionId}">
+                            <input type="${inputType}" name="vote-${topic.id}" value="${option}" id="${optionId}" ${isActive ? '' : 'disabled'}>
+                            <div class="option-content">
+                                <div class="${optionClass}"></div>
+                                <div class="option-text">${option}</div>
+                            </div>
+                        </label>
+                    `;
+                });
+                optionsHTML += '</div>';
+            }
+
+            let actionsHTML = '';
+            if (isActive) {
+                actionsHTML = `
+                    <div class="voting-actions">
+                        <button class="btn-vote" onclick="submitVote(${topic.id})">
+                            🗳️ Kirim Suara
+                        </button>
+                    </div>
+                `;
+            }
+
+            let resultsHTML = '';
+            if (topic.results && Object.keys(topic.results).length > 0) {
+                resultsHTML = generateResultsHTML(topic.results, topic.total_votes || 0);
+            }
+
+            return `
+                <div class="voting-topic mb-4" data-topic-id="${topic.id}">
+                    <h4>${topic.judul}</h4>
+                    ${topic.deskripsi ? `<p class="text-muted">${topic.deskripsi}</p>` : ''}
+                    ${statusHTML}
+                    ${optionsHTML}
+                    ${actionsHTML}
+                    ${resultsHTML}
+                </div>
+            `;
+        }
+
+        function generateResultsHTML(results, totalVotes) {
+            let html = `
+                <div class="voting-results">
+                    <h5>📊 Hasil Voting (${totalVotes} suara)</h5>
+                    <div class="results-chart">
+            `;
+
+            const maxVotes = Math.max(...Object.values(results));
+
+            for (const [option, votes] of Object.entries(results)) {
+                const percentage = totalVotes > 0 ? (votes / totalVotes * 100) : 0;
+                const barWidth = maxVotes > 0 ? (votes / maxVotes * 100) : 0;
+
+                html += `
+                    <div class="result-bar">
+                        <div class="result-label">${option}</div>
+                        <div class="result-bar-container">
+                            <div class="result-bar-fill" style="width: ${barWidth}%"></div>
+                            <div class="result-count">${votes} (${percentage.toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div></div>';
+            return html;
+        }
+
+        function startCountdown(topicId, endTime) {
+            const countdownElement = $(`#countdown-${topicId}`);
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = endTime.getTime() - now;
+
+                if (distance < 0) {
+                    countdownElement.text('Voting telah berakhir');
+                    clearInterval(votingTimer);
+                    return;
+                }
+
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownElement.text(`${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            }
+
+            updateCountdown();
+            votingTimer = setInterval(updateCountdown, 1000);
+        }
+
+        function submitVote(topicId) {
+            const selectedOptions = $(`input[name="vote-${topicId}"]:checked`);
+
+            if (selectedOptions.length === 0) {
+                alert('Silakan pilih opsi voting terlebih dahulu.');
+                return;
+            }
+
+            const votes = [];
+            selectedOptions.each(function () {
+                votes.push($(this).val());
+            });
+
+            const submitBtn = $(`[data-topic-id="${topicId}"] .btn-vote`);
+            submitBtn.prop('disabled', true).text('Mengirim suara...');
+
+            $.post('../backend/public/index.php?path=voting/submitVote', {
+                voting_topic_id: topicId,
+                pilihan: JSON.stringify(votes)
+            }, function (data) {
+                if (data.status) {
+                    alert('Suara berhasil dikirim!');
+                    // Reload the agenda to show results
+                    loadRATAgenda(currentAgendaId);
+                } else {
+                    alert('Gagal mengirim suara: ' + data.message);
+                    submitBtn.prop('disabled', false).text('🗳️ Kirim Suara');
+                }
+            }, 'json').fail(function () {
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+                submitBtn.prop('disabled', false).text('🗳️ Kirim Suara');
+            });
+        }
+
+        function formatDateTime(dateTimeStr) {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Handle voting option selection
+        $(document).on('change', 'input[type="radio"], input[type="checkbox"]', function () {
+            const option = $(this).closest('.voting-option');
+            const isChecked = $(this).is(':checked');
+
+            if ($(this).attr('type') === 'radio') {
+                // For radio buttons, remove selected class from siblings
+                option.siblings().removeClass('selected');
+            }
+
+            // Toggle selected class
+            option.toggleClass('selected', isChecked);
+        });
+    </script>
+</body>
+
+</html>

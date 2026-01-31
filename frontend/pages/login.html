@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KSP POLRI</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-header h2 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        .login-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 1rem 2rem 2rem 2rem;
+            color: #666;
+        }
+
+        .login-footer a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-header">
+                <h2>KSP POLRI</h2>
+                <p>Sistem Koperasi Polri</p>
+            </div>
+
+            <div class="login-body">
+                <!-- Alert untuk pesan error/sukses -->
+                <div id="alertContainer"></div>
+
+                <form id="loginForm">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="username" placeholder="Username" required>
+                        <label for="username">Username</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="password" placeholder="Password" required>
+                        <label for="password">Password</label>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Ingat saya</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        Masuk
+                    </button>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p>Belum punya akun? Hubungi admin untuk dibuatkan akses.</p>
+                <p><a href="#" onclick="forgotPassword()">Lupa password?</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#loginForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const username = $('#username').val();
+                const password = $('#password').val();
+                const rememberMe = $('#rememberMe').is(':checked');
+
+                // Show loading
+                $('#loginBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Memproses...');
+
+                // Clear previous alerts
+                $('#alertContainer').html('');
+
+                // AJAX login request
+                $.ajax({
+                    url: '../../backend/public/index.php?path=login',
+                    method: 'POST',
+                    data: {
+                        username: username,
+                        password: password,
+                        remember_me: rememberMe ? 1 : 0
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status) {
+                            showAlert('success', 'Login berhasil! Mengarahkan ke dashboard...');
+
+                            const role = response.data && response.data.role ? response.data.role : 'pengurus';
+                            setTimeout(function () {
+                                if (role === 'pengurus') {
+                                    window.location.href = 'dashboard_pengurus.html';
+                                } else {
+                                    window.location.href = 'dashboard_anggota.html';
+                                }
+                            }, 1200);
+                        } else {
+                            showAlert('danger', response.message || 'Login gagal. Periksa username dan password Anda.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Login error:', error);
+                        showAlert('danger', 'Terjadi kesalahan sistem. Silakan coba lagi.');
+                    },
+                    complete: function () {
+                        // Hide loading
+                        $('#loginBtn').prop('disabled', false).html('Masuk');
+                    }
+                });
+            });
+        });
+
+        function showAlert(type, message) {
+            const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+            $('#alertContainer').html(alertHtml);
+        }
+
+        function forgotPassword() {
+            showAlert('info', 'Silakan hubungi admin untuk reset password.');
+        }
+    </script>
+</body>
+
+</html>

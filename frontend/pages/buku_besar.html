@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Buku Besar</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Buku Besar</h2>
     <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
-    
+
     <h3>Lihat Buku Besar</h3>
     <form id="bukuBesarForm">
         <select name="account_id" id="accountSelect" required>
@@ -15,36 +17,55 @@
         </select><br>
         <input type="date" name="start_date" placeholder="Tanggal Mulai">
         <input type="date" name="end_date" placeholder="Tanggal Akhir"><br>
-        <button type="submit">Tampilkan</button>
+        <button type="submit" id="submitBtn">Tampilkan</button>
     </form>
 
     <h3>Transaksi</h3>
-    <div id="bukuBesarContent"></div>
+    <div id="bukuBesarContent">Silakan pilih akun dan klik Tampilkan.</div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadAccounts();
 
-            $('#bukuBesarForm').on('submit', function(e) {
+            $('#bukuBesarForm').on('submit', function (e) {
                 e.preventDefault();
-                let params = $(this).serialize();
-                $.get('../backend/public/index.php?path=accounting/bukuBesar&' + params, function(data) {
-                    if (data.status) {
+                const accountId = $('#accountSelect').val();
+                if (!accountId) {
+                    $('#bukuBesarContent').html('Pilih akun terlebih dahulu.');
+                    return;
+                }
+                const params = $(this).serialize();
+                const btn = $('#submitBtn');
+                btn.prop('disabled', true).text('Memuat...');
+                $('#bukuBesarContent').html('Memuat data...');
+
+                $.get('../backend/public/index.php?path=accounting/bukuBesar&' + params, function (data) {
+                    if (data.status && data.data.length) {
+                        let totalDebit = 0, totalKredit = 0;
                         let html = '<table border="1"><tr><th>Tanggal</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Ref</th></tr>';
                         data.data.forEach(t => {
+                            totalDebit += parseFloat(t.debit || 0);
+                            totalKredit += parseFloat(t.kredit || 0);
                             html += `<tr><td>${t.tanggal}</td><td>${formatRupiah(t.debit)}</td><td>${formatRupiah(t.kredit)}</td><td>${formatRupiah(t.saldo)}</td><td>${t.reference_type}</td></tr>`;
                         });
+                        html += `<tr><td><strong>Total</strong></td><td><strong>${formatRupiah(totalDebit)}</strong></td><td><strong>${formatRupiah(totalKredit)}</strong></td><td></td><td></td></tr>`;
                         html += '</table>';
                         $('#bukuBesarContent').html(html);
+                    } else if (data.status) {
+                        $('#bukuBesarContent').html('Tidak ada transaksi pada rentang ini.');
                     } else {
-                        $('#bukuBesarContent').html('<p>' + data.message + '</p>');
+                        $('#bukuBesarContent').html('<p>' + (data.message || 'Gagal mengambil data') + '</p>');
                     }
-                }, 'json');
+                }, 'json').fail(function () {
+                    $('#bukuBesarContent').html('Gagal memuat data.');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Tampilkan');
+                });
             });
 
             function loadAccounts() {
-                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
+                $.get('../backend/public/index.php?path=accounting/coa/list', function (data) {
                     if (data.status) {
                         let options = '<option value="">Pilih Akun</option>';
                         data.data.forEach(a => {
@@ -61,4 +82,5 @@
         });
     </script>
 </body>
+
 </html>

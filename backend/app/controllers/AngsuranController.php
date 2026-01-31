@@ -1,6 +1,7 @@
 <?php
 // app/controllers/AngsuranController.php
 require_once '../app/models/Angsuran.php';
+require_once '../app/core/AuditLogger.php';
 require_once '../app/views/json.php';
 
 class AngsuranController {
@@ -12,7 +13,7 @@ class AngsuranController {
 
         $angsuran = new Angsuran();
         if ($angsuran->bayar($data)) {
-            // Audit
+            AuditLogger::log($_SESSION['user_id'] ?? null, 'CREATE', 'angsuran', null, null, $data);
             jsonResponse(true, 'Angsuran berhasil dibayar');
         } else {
             jsonResponse(false, 'Jumlah melebihi sisa pinjaman');

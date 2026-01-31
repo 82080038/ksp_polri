@@ -1,6 +1,7 @@
 <?php
 // app/controllers/SimpananController.php
 require_once '../app/models/Simpanan.php';
+require_once '../app/core/AuditLogger.php';
 require_once '../app/views/json.php';
 
 class SimpananController {
@@ -27,7 +28,7 @@ class SimpananController {
 
         $simpanan = new Simpanan();
         if ($simpanan->create($data)) {
-            // Audit
+            AuditLogger::log($_SESSION['user_id'] ?? null, 'CREATE', 'simpanan', null, null, $data);
             jsonResponse(true, 'Simpanan berhasil ditambahkan');
         } else {
             jsonResponse(false, 'Gagal');

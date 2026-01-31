@@ -1,0 +1,300 @@
+/* assets/css/bootstrap-custom.css */
+/* Custom Bootstrap 5 integration for KSP POLRI */
+
+/* Import Bootstrap 5 CSS */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
+
+/* Override default Bootstrap variables */
+:root {
+    --bs-primary: #2196F3;
+    --bs-secondary: #6c757d;
+    --bs-success: #4caf50;
+    --bs-info: #17a2b8;
+    --bs-warning: #ffc107;
+    --bs-danger: #f44336;
+    --bs-light: #f8f9fa;
+    --bs-dark: #343a40;
+}
+
+/* Custom KSP POLRI styles */
+.ksp-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.ksp-header {
+    background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.ksp-nav {
+    background: #1976d2;
+    padding: 0;
+}
+
+.ksp-nav .navbar-brand {
+    color: white !important;
+    font-weight: bold;
+}
+
+.ksp-nav .navbar-nav .nav-link {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.ksp-nav .navbar-nav .nav-link:hover {
+    color: white !important;
+    background: rgba(255,255,255,0.1);
+}
+
+.ksp-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ksp-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+}
+
+.ksp-btn-primary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 30px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.ksp-btn-primary:hover {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(33,150,243,0.3);
+}
+
+.ksp-table {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.ksp-table thead {
+    background: linear-gradient(135deg, #2196F3 0%, #1976d2 100%);
+    color: white;
+}
+
+.ksp-form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.ksp-form-control:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 0.2rem rgba(33,150,243,0.25);
+}
+
+.ksp-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.ksp-stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-left: 4px solid #2196F3;
+}
+
+.ksp-stat-card .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2196F3;
+    margin: 1rem 0;
+}
+
+.ksp-stat-card .stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .ksp-container {
+        padding: 0 10px;
+    }
+
+    .ksp-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .ksp-dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .ksp-stat-card {
+        padding: 1rem;
+    }
+
+    .ksp-stat-card .stat-number {
+        font-size: 2rem;
+    }
+
+    .ksp-table {
+        font-size: 0.8rem;
+    }
+
+    .ksp-table th,
+    .ksp-table td {
+        padding: 8px 4px;
+    }
+
+    .ksp-btn-primary {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .ksp-nav .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    .ksp-nav .navbar-nav .nav-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .ksp-card {
+        margin-bottom: 1rem;
+    }
+
+    .ksp-form-control {
+        padding: 10px 12px;
+    }
+}
+
+/* Notification styles */
+.ksp-notification-bell {
+    position: relative;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.ksp-notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f44336;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+}
+
+.ksp-notification-badge.show {
+    display: block;
+}
+
+.ksp-notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 350px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.ksp-notification-dropdown.show {
+    display: block;
+}
+
+.ksp-notification-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ksp-notification-item:hover {
+    background: #f5f5f5;
+}
+
+.ksp-notification-item.unread {
+    background: #e3f2fd;
+    border-left: 3px solid #2196F3;
+}
+
+/* Loading spinner */
+.ksp-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2196F3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+.ksp-custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ksp-custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.ksp-custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.ksp-custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Print styles */
+@media print {
+    .ksp-nav,
+    .ksp-btn-primary,
+    .ksp-notification-bell {
+        display: none !important;
+    }
+
+    .ksp-container {
+        max-width: none;
+        padding: 0;
+    }
+
+    .ksp-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Management - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .backup-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .backup-stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #2196F3;
+        }
+
+        .backup-stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2196F3;
+            margin: 0.5rem 0;
+        }
+
+        .backup-stat-card .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .backup-controls {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .backup-progress {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3, #1976d2);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .backup-files {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .backup-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .backup-file-info {
+            flex: 1;
+        }
+
+        .backup-file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .backup-file-meta {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .backup-file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-backup {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-backup:hover {
+            background: linear-gradient(135deg, #388e3c, #2e7d32);
+            transform: translateY(-1px);
+        }
+
+        .btn-backup:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .cron-setup {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cron-setup code {
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .alert-permissions {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="ksp-container">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">💾 Backup Management</h2>
+                    <p class="text-muted mb-0">Kelola backup database KSP POLRI</p>
+                </div>
+                <a href="dashboard_pengurus.html" class="btn btn-outline-primary">← Kembali ke Dashboard</a>
+            </div>
+
+            <!-- Backup Statistics -->
+            <div class="backup-stats" id="backupStats">
+                <div class="backup-stat-card">
+                    <div class="stat-number" id="totalBackups">-</div>
+                    <div class="stat-label">Total Backup</div>
+                </div>
+                <div class="backup-stat-card">
+                    <div class="stat-number" id="totalSize">-</div>
+                    <div class="stat-label">Total Ukuran</div>
+                </div>
+                <div class="backup-stat-card">
+                    <div class="stat-number" id="lastBackup">-</div>
+                    <div class="stat-label">Backup Terakhir</div>
+                </div>
+                <div class="backup-stat-card">
+                    <div class="stat-number" id="retentionDays">30</div>
+                    <div class="stat-label">Retention (hari)</div>
+                </div>
+            </div>
+
+            <!-- Backup Controls -->
+            <div class="backup-controls">
+                <h4>⚙️ Kontrol Backup</h4>
+
+                <!-- Permission Check Alert -->
+                <div id="permissionAlert" class="alert-permissions" style="display:none;">
+                    <strong>⚠️ Masalah Permissions:</strong>
+                    <ul id="permissionIssues"></ul>
+                    <small>Jalankan command berikut untuk memperbaiki:</small>
+                    <br><code>sudo chmod 755 /var/www/html/ksp_polri/backend/scripts/backup_database.php</code>
+                    <br><code>sudo chown www-data:www-data /var/www/html/ksp_polri/backups /var/www/html/ksp_polri/logs</code>
+                </div>
+
+                <!-- Manual Backup -->
+                <div class="mb-4">
+                    <h5>Manual Backup</h5>
+                    <p>Buat backup database secara manual.</p>
+                    <button id="runBackupBtn" class="btn-backup">
+                        🚀 Jalankan Backup Sekarang
+                    </button>
+
+                    <div id="backupProgress" class="backup-progress">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill"></div>
+                        </div>
+                        <p class="text-center mb-0" id="progressText">Memulai backup...</p>
+                    </div>
+                </div>
+
+                <!-- Cron Job Setup -->
+                <div class="cron-setup">
+                    <h5>🔄 Setup Cron Job (Otomatis)</h5>
+                    <p>Untuk backup otomatis setiap hari jam 2 pagi:</p>
+                    <ol>
+                        <li>Buka terminal dan jalankan: <code>sudo crontab -e</code></li>
+                        <li>Tambahkan baris berikut:</li>
+                    </ol>
+                    <code>0 2 * * * cd /var/www/html/ksp_polri/backend && php scripts/backup_database.php >> logs/backup.log 2>&1</code>
+
+                    <p class="mt-2 mb-0"><small>
+                            <strong>Penjelasan:</strong> Backup akan berjalan setiap hari pukul 02:00.
+                            Log akan disimpan di <code>logs/backup.log</code>.
+                            Backup otomatis akan menyimpan file selama 30 hari.
+                        </small></p>
+                </div>
+            </div>
+
+            <!-- Backup Files List -->
+            <div class="backup-files">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>📁 File Backup</h4>
+                    <button id="refreshFilesBtn" class="btn btn-outline-secondary btn-sm">🔄 Refresh</button>
+                </div>
+
+                <div id="backupFilesList">
+                    <div class="text-center py-4">
+                        <div class="ksp-spinner"></div>
+                        <p>Memuat daftar backup...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadBackupStats();
+            loadBackupFiles();
+            checkPermissions();
+
+            // Run manual backup
+            $('#runBackupBtn').on('click', function () {
+                runManualBackup();
+            });
+
+            // Refresh files
+            $('#refreshFilesBtn').on('click', function () {
+                loadBackupFiles();
+            });
+        });
+
+        function loadBackupStats() {
+            $('#totalBackups').text('...');
+            $('#totalSize').text('...');
+            $('#lastBackup').text('...');
+            $.get('../backend/public/index.php?path=backup/stats', function (data) {
+                if (data.status) {
+                    const stats = data.data;
+                    $('#totalBackups').text(stats.total_backups);
+                    $('#totalSize').text(stats.total_size_formatted);
+                    $('#lastBackup').text(stats.newest_backup || '-');
+                    $('#retentionDays').text('30');
+                } else {
+                    $('#lastBackup').text('Gagal memuat');
+                }
+            }, 'json').fail(function () {
+                $('#lastBackup').text('Gagal memuat');
+            });
+        }
+
+        function runManualBackup() {
+            if (!confirm('Apakah Anda yakin ingin menjalankan backup database? Proses ini mungkin memakan waktu beberapa menit.')) {
+                return;
+            }
+
+            $('#runBackupBtn').prop('disabled', true).text('🔄 Menjalankan Backup...');
+            $('#backupProgress').show();
+            $('#progressFill').css('width', '0%');
+            $('#progressText').text('Memulai backup...');
+
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress <= 90) {
+                    $('#progressFill').css('width', progress + '%');
+                    $('#progressText').text(`Backup sedang berjalan... ${progress}%`);
+                }
+            }, 1000);
+
+            $.post('../backend/public/index.php?path=backup/run', function (data) {
+                clearInterval(progressInterval);
+
+                if (data.status) {
+                    $('#progressFill').css('width', '100%');
+                    $('#progressText').text('✅ Backup berhasil!');
+
+                    const stats = data.data;
+                    $('#totalBackups').text(stats.total_backups);
+                    $('#totalSize').text(stats.total_size_formatted);
+                    $('#lastBackup').text(stats.newest_backup || '-');
+
+                    setTimeout(() => {
+                        loadBackupFiles();
+                        $('#backupProgress').hide();
+                        $('#runBackupBtn').prop('disabled', false).text('🚀 Jalankan Backup Sekarang');
+                    }, 1200);
+
+                } else {
+                    $('#progressFill').css('width', '0%');
+                    $('#progressText').text('❌ Backup gagal: ' + (data.message || ''));
+                    $('#runBackupBtn').prop('disabled', false).text('🚀 Jalankan Backup Sekarang');
+                }
+            }, 'json').fail(function () {
+                clearInterval(progressInterval);
+                $('#progressFill').css('width', '0%');
+                $('#progressText').text('❌ Error: Tidak dapat menghubungi server');
+                $('#runBackupBtn').prop('disabled', false).text('🚀 Jalankan Backup Sekarang');
+            });
+        }
+
+        function loadBackupFiles() {
+            $('#backupFilesList').html(`
+                <div class="text-center py-4">
+                    <div class="ksp-spinner"></div>
+                    <p>Memuat daftar backup...</p>
+                </div>
+            `);
+
+            $.get('../backend/public/index.php?path=backup/list', function (data) {
+                if (data.status) {
+                    const backups = data.data.backups;
+
+                    if (backups.length === 0) {
+                        $('#backupFilesList').html(`
+                            <div class="text-center py-4 text-muted">
+                                <p>📁 Belum ada file backup</p>
+                                <small>Jalankan backup pertama untuk membuat file backup</small>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    let html = '';
+                    backups.forEach(backup => {
+                        const ageClass = backup.age_days === 0 ? 'text-success' : (backup.age_days <= 7 ? 'text-warning' : 'text-muted');
+                        const ageText = backup.age_days === 0 ? 'Hari ini' : `${backup.age_days} hari yang lalu`;
+
+                        html += `
+                            <div class="backup-file-item">
+                                <div class="backup-file-info">
+                                    <div class="backup-file-name">${backup.filename}</div>
+                                    <div class="backup-file-meta">
+                                        📅 ${backup.created_at} • 📏 ${backup.size_formatted} • 🕐 <span class="${ageClass}">${ageText}</span>
+                                    </div>
+                                </div>
+                                <div class="backup-file-actions">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="downloadBackup('${backup.filename}')">
+                                        ⬇️ Download
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm" onclick="restoreBackup('${backup.filename}')">♻️ Restore</button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteBackup('${backup.filename}')">🗑️ Hapus</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    $('#backupFilesList').html(html);
+                } else {
+                    $('#backupFilesList').html(`
+                        <div class="text-center py-4 text-danger">
+                            <p>❌ Gagal memuat daftar backup</p>
+                        </div>
+                    `);
+                }
+            }, 'json').fail(function () {
+                $('#backupFilesList').html(`
+                    <div class="text-center py-4 text-danger">
+                        <p>❌ Error: Tidak dapat menghubungi server</p>
+                    </div>
+                `);
+            });
+        }
+
+        function downloadBackup(filename) {
+            window.location.href = `../backend/public/index.php?path=backup/download&file=${encodeURIComponent(filename)}`;
+        }
+
+        function deleteBackup(filename) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus backup "${filename}"?`)) {
+                return;
+            }
+
+            $.post('../backend/public/index.php?path=backup/delete', { file: filename }, function (data) {
+                if (data.status) {
+                    loadBackupFiles();
+                    loadBackupStats();
+                    alert('Backup berhasil dihapus');
+                } else {
+                    alert('Gagal menghapus backup: ' + (data.message || ''));
+                }
+            }, 'json').fail(function () {
+                alert('Gagal menghapus backup: tidak dapat menghubungi server');
+            });
+        }
+
+        function restoreBackup(filename) {
+            if (!confirm(`Restore backup "${filename}"? Data sekarang akan ditimpa.`)) return;
+            $('#backupFilesList').prepend('<div class="text-info">Memulai restore...</div>');
+            $.post('../backend/public/index.php?path=backup/restore', { file: filename }, function (data) {
+                if (data.status) {
+                    alert('Restore berhasil. Sistem mungkin perlu beberapa saat.');
+                } else {
+                    alert('Restore gagal: ' + (data.message || ''));
+                }
+            }, 'json').fail(function () {
+                alert('Restore gagal: tidak dapat menghubungi server');
+            });
+        }
+
+        function checkPermissions() {
+            $.get('../backend/public/index.php?path=backup/checkPermissions', function (data) {
+                if (data.status) {
+                    if (!data.data.ready) {
+                        const issues = data.data.issues;
+                        if (issues.length > 0) {
+                            let issuesHtml = '';
+                            issues.forEach(issue => {
+                                issuesHtml += `<li>${issue}</li>`;
+                            });
+                            $('#permissionIssues').html(issuesHtml);
+                            $('#permissionAlert').show();
+                        }
+                    }
+                }
+            }, 'json');
+        }
+    </script>
+</body>
+
+</html>

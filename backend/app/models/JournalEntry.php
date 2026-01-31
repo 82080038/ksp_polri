@@ -11,8 +11,18 @@ class JournalEntry {
 
     public function create($data) {
         $this->db->begin_transaction();
-        
+
         try {
+            // Validate debit = kredit
+            $totalDebit = 0; $totalKredit = 0;
+            foreach ($data['details'] as $detail) {
+                $totalDebit += (float)$detail['debit'];
+                $totalKredit += (float)$detail['kredit'];
+            }
+            if (abs($totalDebit - $totalKredit) > 0.0001) {
+                throw new Exception('Jurnal tidak seimbang (debit != kredit)');
+            }
+
             $stmt = $this->db->prepare("INSERT INTO journal_entries (tanggal, nomor_jurnal, deskripsi, created_by) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("sssi", $data['tanggal'], $data['nomor_jurnal'], $data['deskripsi'], $data['created_by']);
             $stmt->execute();

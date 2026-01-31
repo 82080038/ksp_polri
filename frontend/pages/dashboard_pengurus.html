@@ -1,25 +1,180 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
+
 <head>
-    <title>Dashboard Pengurus</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KSP POLRI">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" href="../assets/icons/icon-192x192.png">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/icon-32x32.png">
+    <title>Dashboard Pengurus - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
-    <h2>Dashboard Pengurus</h2>
-    <nav>
-        <a href="#" id="anggotaLink">Data Anggota</a>
-        <a href="#" id="simpananLink">Simpanan</a>
-        <a href="#" id="pinjamanLink">Pinjaman</a>
-        <a href="#" id="shuLink">SHU</a>
-        <a href="#" id="ratLink">RAT</a>
-        <a href="coa.html">Chart of Accounts</a>
-        <a href="jurnal.html">Jurnal Umum</a>
-        <a href="buku_besar.html">Buku Besar</a>
-        <a href="laporan_keuangan.html">Laporan Keuangan</a>
-        <a href="assets.html">Aset Tetap</a>
+    <!-- Header -->
+    <header class="ksp-header">
+        <div class="ksp-container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">Dashboard Pengurus KSP POLRI</h1>
+                <div class="d-flex align-items-center gap-3">
+                    <?php include '../includes/notification_component.html'; ?>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <?php echo $_SESSION['username'] ?? 'Pengurus'; ?>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html">Profil</a></li>
+                            <li><a class="dropdown-item" href="mfa_settings.html">Pengaturan MFA</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="../backend/public/index.php?path=auth/logout">Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="ksp-nav navbar navbar-expand-lg navbar-dark">
+        <div class="ksp-container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- Core Koperasi -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">🏢 Koperasi</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#anggota" id="anggotaLink">👥 Data Anggota</a></li>
+                            <li><a class="dropdown-item" href="#simpanan" id="simpananLink">💰 Simpanan</a></li>
+                            <li><a class="dropdown-item" href="#pinjaman" id="pinjamanLink">💳 Pinjaman</a></li>
+                            <li><a class="dropdown-item" href="#shu" id="shuLink">🎯 SHU</a></li>
+                            <li><a class="dropdown-item" href="#rat" id="ratLink">📋 RAT</a></li>
+                        </ul>
+                    </li>
+                    <!-- Accounting Module -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">📊 Accounting</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="coa.html">📈 Chart of Accounts</a></li>
+                            <li><a class="dropdown-item" href="jurnal.html">📝 Jurnal Umum</a></li>
+                            <li><a class="dropdown-item" href="buku_besar.html">📚 Buku Besar</a></li>
+                            <li><a class="dropdown-item" href="laporan_keuangan.html">📋 Laporan Keuangan</a></li>
+                            <li><a class="dropdown-item" href="assets.html">🏢 Aset Tetap</a></li>
+                        </ul>
+                    </li>
+                    <!-- Analytics & Reports -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">📈 Analytics</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="dashboard_analytics.html">📊 Dashboard Analytics</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">📧 Kelola Notifikasi</a></li>
+                        </ul>
+                    </li>
+                    <!-- Security & Admin -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">🔒 Admin</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="security_audit.html">🛡️ Security Audit</a></li>
+                            <li><a class="dropdown-item" href="mfa_settings.html">🔐 MFA Settings</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    <div id="content"></div>
+
+    <!-- Main Content -->
+    <main class="ksp-container py-4">
+        <!-- Stats Cards -->
+        <div class="ksp-dashboard-grid mb-4" id="statsCards">
+            <div class="ksp-stat-card border-success">
+                <div class="stat-number text-success" id="totalAnggota">0</div>
+                <div class="stat-label">Total Anggota</div>
+            </div>
+            <div class="ksp-stat-card border-info">
+                <div class="stat-number text-info" id="totalSimpanan">0</div>
+                <div class="stat-label">Total Simpanan</div>
+            </div>
+            <div class="ksp-stat-card border-warning">
+                <div class="stat-number text-warning" id="totalPinjaman">0</div>
+                <div class="stat-label">Total Pinjaman</div>
+            </div>
+            <div class="ksp-stat-card border-primary">
+                <div class="stat-number text-primary" id="totalSHU">0</div>
+                <div class="stat-label">Total SHU</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="ksp-card card p-3">
+                    <h5 class="card-title mb-3">⚡ Quick Actions</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-success btn-sm" onclick="processTunggakan()">📧 Kirim Notifikasi
+                            Tunggakan</button>
+                        <button class="btn btn-primary btn-sm" onclick="broadcastSHU()">🎯 Broadcast SHU</button>
+                        <button class="btn btn-info btn-sm" onclick="runSecurityAudit()">🛡️ Security Audit</button>
+                        <button class="btn btn-warning btn-sm" onclick="backupDatabase()">💾 Backup Database</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content" class="ksp-card card p-4">
+            <div class="text-center py-5">
+                <div class="ksp-spinner mb-3"></div>
+                <p>Memuat data dashboard...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script src="../assets/js/dashboard.js"></script>
+    <!-- PWA Service Worker Registration -->
+    <script src="../assets/js/pwa.js"></script>
+    <script>
+        function processTunggakan() {
+            if (confirm('Kirim notifikasi tunggakan ke semua anggota yang menunggak?')) {
+                $.post('../backend/public/index.php?path=notification/processAllTunggakan', function (data) {
+                    alert(data.message);
+                }, 'json');
+            }
+        }
+
+        function broadcastSHU() {
+            const tahun = prompt('Masukkan tahun SHU:');
+            if (tahun) {
+                $.post('../backend/public/index.php?path=notification/broadcastShu', { tahun: tahun }, function (data) {
+                    alert(data.message);
+                }, 'json');
+            }
+        }
+
+        function runSecurityAudit() {
+            window.location.href = 'security_audit.html';
+        }
+
+        function backupDatabase() {
+            window.location.href = 'backup_management.html';
+        }
+    </script>
 </body>
+
 </html>

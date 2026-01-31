@@ -1,31 +1,131 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Daftar Agent</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
-    <h2>Daftar Agent</h2>
-    <div id="agentList"></div>
+    <h2>Manajemen Agen</h2>
+
+    <section>
+        <h3>Tambah / Ubah Agen</h3>
+        <form id="agentForm">
+            <input type="hidden" name="id" id="agentId">
+            <label>User ID</label><br>
+            <input type="number" name="user_id" id="userId" min="1" required><br>
+            <label>Jenis Agen</label><br>
+            <input type="text" name="jenis_agen" id="jenisAgen" required><br>
+            <label>Wilayah Penjualan</label><br>
+            <input type="text" name="wilayah_penjualan" id="wilayah" required><br>
+            <label>Komisi (%)</label><br>
+            <input type="number" name="komisi_persen" id="komisi" step="0.01" min="0" max="100" required><br>
+            <label>Batas Kredit</label><br>
+            <input type="number" name="batas_kredit" id="batas" step="0.01" min="0" required><br><br>
+            <button type="submit" id="saveBtn">Simpan</button>
+            <button type="button" id="resetBtn">Reset</button>
+        </form>
+        <div id="formMessage"></div>
+    </section>
+
+    <section>
+        <h3>Daftar Agen</h3>
+        <div id="agentList">Memuat data...</div>
+    </section>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadAgents();
 
+            $('#agentForm').on('submit', function (e) {
+                e.preventDefault();
+                const id = $('#agentId').val();
+                const path = id ? 'agent/update' : 'agent/create';
+                const btn = $('#saveBtn');
+                btn.prop('disabled', true).text('Memproses...');
+                $('#formMessage').text('');
+
+                $.post(`../backend/public/index.php?path=${path}`, $(this).serialize(), function (res) {
+                    $('#formMessage').text(res.message || '');
+                    if (res.status) {
+                        resetForm();
+                        loadAgents();
+                    }
+                }, 'json').fail(function () {
+                    $('#formMessage').text('Gagal memproses permintaan.');
+                }).always(function () {
+                    btn.prop('disabled', false).text('Simpan');
+                });
+            });
+
+            $('#resetBtn').on('click', function () {
+                resetForm();
+            });
+
+            function resetForm() {
+                $('#agentId').val('');
+                $('#agentForm')[0].reset();
+                $('#saveBtn').text('Simpan');
+            }
+
             function loadAgents() {
-                $.get('../backend/public/index.php?path=agent/list', function(data) {
-                    if (data.status) {
-                        let html = '<table><tr><th>User ID</th><th>Jenis Agen</th><th>Wilayah</th><th>Komisi (%)</th></tr>';
+                $('#agentList').html('Memuat data...');
+                $.get('../backend/public/index.php?path=agent/list', function (data) {
+                    if (data.status && data.data.length) {
+                        let html = '<table border="1"><tr><th>ID</th><th>User ID</th><th>Jenis Agen</th><th>Wilayah</th><th>Komisi (%)</th><th>Batas Kredit</th><th>Aksi</th></tr>';
                         data.data.forEach(a => {
-                            html += `<tr><td>${a.user_id}</td><td>${a.jenis_agen}</td><td>${a.wilayah_penjualan}</td><td>${a.komisi_persen}</td></tr>`;
+                            html += `<tr>
+                                <td>${a.id}</td>
+                                <td>${a.user_id}</td>
+                                <td>${a.jenis_agen}</td>
+                                <td>${a.wilayah_penjualan}</td>
+                                <td>${a.komisi_persen}</td>
+                                <td>${a.batas_kredit}</td>
+                                <td>
+                                    <button class="btn-edit" data-id="${a.id}">Edit</button>
+                                    <button class="btn-delete" data-id="${a.id}">Hapus</button>
+                                </td>
+                            </tr>`;
                         });
                         html += '</table>';
                         $('#agentList').html(html);
+                    } else {
+                        $('#agentList').html('Tidak ada data agen.');
+                    }
+                }, 'json').fail(function () {
+                    $('#agentList').html('Gagal memuat data.');
+                });
+            }
+
+            $('#agentList').on('click', '.btn-edit', function () {
+                const id = $(this).data('id');
+                $.get('../backend/public/index.php?path=agent/detail&id=' + id, function (res) {
+                    if (res.status) {
+                        $('#agentId').val(res.data.id);
+                        $('#userId').val(res.data.user_id);
+                        $('#jenisAgen').val(res.data.jenis_agen);
+                        $('#wilayah').val(res.data.wilayah_penjualan);
+                        $('#komisi').val(res.data.komisi_persen);
+                        $('#batas').val(res.data.batas_kredit);
+                        $('#saveBtn').text('Update');
+                    } else {
+                        alert(res.message || 'Data tidak ditemukan');
                     }
                 }, 'json');
-            }
+            });
+
+            $('#agentList').on('click', '.btn-delete', function () {
+                const id = $(this).data('id');
+                if (!confirm('Hapus agen ini?')) return;
+                $.post('../backend/public/index.php?path=agent/delete', { id: id }, function (res) {
+                    alert(res.message || '');
+                    if (res.status) loadAgents();
+                }, 'json');
+            });
         });
     </script>
 </body>
+
 </html>

@@ -1,0 +1,123 @@
+{
+  "name": "KSP POLRI - Koperasi Personel Polri",
+  "short_name": "KSP POLRI",
+  "description": "Aplikasi Koperasi Simpan Pinjam Personel POLRI",
+  "start_url": "/ksp_polri/frontend/pages/dashboard_anggota.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196F3",
+  "orientation": "portrait-primary",
+  "scope": "/ksp_polri/",
+  "icons": [
+    {
+      "src": "/ksp_polri/assets/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ksp_polri/assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"],
+  "lang": "id-ID",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Dashboard Anggota",
+      "short_name": "Dashboard",
+      "description": "Lihat dashboard anggota",
+      "url": "/ksp_polri/frontend/pages/dashboard_anggota.html",
+      "icons": [
+        {
+          "src": "/ksp_polri/assets/icons/dashboard-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Simpanan Saya",
+      "short_name": "Simpanan",
+      "description": "Lihat data simpanan",
+      "url": "/ksp_polri/frontend/pages/dashboard_anggota.html?action=simpanan",
+      "icons": [
+        {
+          "src": "/ksp_polri/assets/icons/simpanan-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Pinjaman Saya",
+      "short_name": "Pinjaman",
+      "description": "Lihat data pinjaman",
+      "url": "/ksp_polri/frontend/pages/dashboard_anggota.html?action=pinjaman",
+      "icons": [
+        {
+          "src": "/ksp_polri/assets/icons/pinjaman-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/ksp_polri/assets/screenshots/dashboard-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard Anggota KSP POLRI"
+    },
+    {
+      "src": "/ksp_polri/assets/screenshots/dashboard-tablet.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard Lengkap KSP POLRI"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
