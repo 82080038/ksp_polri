@@ -512,136 +512,146 @@ Dengan implementasi sistem ini, diharapkan KSP Personel POLRI dapat dikelola sec
 
 ---
 
-# README.md (FINAL)
+# IMPLEMENTASI DATABASE (TAHAP 1)
 
-## Sistem Informasi Koperasi Simpan Pinjam (KSP) Personel POLRI
+## Prinsip Desain Database
 
-Sistem ini dirancang sebagai **platform resmi digital Koperasi Simpan Pinjam (KSP) Personel POLRI**, yang mendukung seluruh proses koperasi secara **transparan, akuntabel, aman, dan sesuai prinsip perkoperasian serta tata kelola institusi POLRI**.
-
----
-
-## 🎯 Tujuan Sistem
-
-* Digitalisasi penuh proses KSP POLRI
-* Mengurangi kesalahan administrasi manual
-* Meningkatkan transparansi keuangan
-* Mempermudah pengawasan dan audit
-* Mendukung RAT yang akurat dan sah
+* Tidak ada DELETE permanen (soft delete)
+* Semua transaksi tercatat historinya
+* Siap audit & RAT
+* Relasi jelas antar tabel
 
 ---
 
-## 🧑‍🤝‍🧑 Role Pengguna
+## ERD Inti (Ringkasan Relasi)
 
-| Role         | Kewenangan                                 |
-| ------------ | ------------------------------------------ |
-| Anggota      | Simpanan, pinjaman, angsuran, SHU pribadi  |
-| Pengurus     | Operasional koperasi, persetujuan, laporan |
-| Pengawas     | Audit, monitoring, verifikasi              |
-| Admin Sistem | Manajemen user & konfigurasi               |
-
----
-
-## 🧩 Modul Utama
-
-* Manajemen Anggota (Personel POLRI)
-* Simpanan Wajib, Pokok, Sukarela
-* Pinjaman & Angsuran
-* Perhitungan SHU Otomatis
-* Laporan Keuangan
-* Rapat Anggota Tahunan (RAT)
-* Audit Log & Pengawasan
+* users → roles
+* anggota → users
+* simpanan → anggota
+* pinjaman → anggota
+* angsuran → pinjaman
+* shu → anggota
+* rat → shu
+* audit_log → users
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## 00_create_database.sql
 
-* **Frontend**: React (Role-based UI)
-* **Backend**: Node.js + Express (REST API)
-* **Database**: MySQL
-* **Auth**: JWT + Role Middleware
-
-Arsitektur mengikuti prinsip:
-
-* Separation of Concern
-* Auditability
-* Maintainability jangka panjang
-
----
-
-## 📂 Struktur Repository
-
-Lihat struktur lengkap di root repository. Pembagian utama:
-
-* `docs/` → Dokumen resmi & SOP
-* `database/` → SQL installer & schema
-* `backend/` → API & business logic
-* `frontend/` → UI per role
-
----
-
-## 🚀 Instalasi Singkat (Development)
-
-### 1️⃣ Database
-
-```bash
-mysql -u root -p < database/00_create_database.sql
-```
-
-### 2️⃣ Backend
-
-```bash
-cd backend
-npm install
-npm run dev
-```
-
-### 3️⃣ Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+```sql
+CREATE DATABASE ksp_polri;
+USE ksp_polri;
 ```
 
 ---
 
-## 🔐 Keamanan & Audit
+## 01_master_tables.sql
 
-* JWT Authentication
-* Role-based Authorization
-* Audit Log setiap transaksi
-* Data tidak dapat dihapus permanen (soft delete)
+```sql
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
 
----
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) UNIQUE,
+  password VARCHAR(255),
+  role_id INT,
+  is_active TINYINT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (role_id) REFERENCES roles(id)
+);
 
-## 📑 Dokumen Pendukung
-
-Dokumen resmi tersedia di folder `docs/`:
-
-* Blueprint Sistem
-* Proposal ke Pimpinan
-* SOP Anggota / Pengurus / Pengawas
-* Checklist Audit
-
----
-
-## 🏁 Status Proyek
-
-📌 Blueprint & arsitektur: **FINAL**
-📌 Siap pengembangan bertahap
-📌 Siap presentasi ke pimpinan
-
----
-
-## ⚖️ Catatan Institusional
-
-Sistem ini dirancang khusus untuk **KSP Personel POLRI** dan harus digunakan sesuai dengan:
-
-* UU Perkoperasian
-* AD/ART Koperasi
-* Aturan internal POLRI
+CREATE TABLE anggota (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nrp VARCHAR(20) UNIQUE,
+  nama VARCHAR(100),
+  pangkat VARCHAR(50),
+  satuan VARCHAR(100),
+  user_id INT,
+  status ENUM('AKTIF','NONAKTIF') DEFAULT 'AKTIF',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
 
 ---
 
-**Pengembang & Tim Teknis**
-Disesuaikan dengan Surat Perintah / Penunjukan Resmi
+## 02_transaction_tables.sql
+
+```sql
+CREATE TABLE simpanan (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  anggota_id INT,
+  jenis ENUM('POKOK','WAJIB','SUKARELA'),
+  jumlah DECIMAL(15,2),
+  tanggal DATE,
+  created_by INT,
+  FOREIGN KEY (anggota_id) REFERENCES anggota(id)
+);
+
+CREATE TABLE pinjaman (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  anggota_id INT,
+  jumlah DECIMAL(15,2),
+  tenor INT,
+  bunga DECIMAL(5,2),
+  status ENUM('DIAJUKAN','DISETUJUI','DITOLAK','LUNAS'),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (anggota_id) REFERENCES anggota(id)
+);
+
+CREATE TABLE angsuran (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pinjaman_id INT,
+  jumlah DECIMAL(15,2),
+  tanggal DATE,
+  FOREIGN KEY (pinjaman_id) REFERENCES pinjaman(id)
+);
+```
+
+---
+
+## 03_shu_rat_tables.sql
+
+```sql
+CREATE TABLE shu (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  anggota_id INT,
+  tahun INT,
+  jumlah DECIMAL(15,2),
+  FOREIGN KEY (anggota_id) REFERENCES anggota(id)
+);
+
+CREATE TABLE rat (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tahun INT,
+  tanggal DATE,
+  status ENUM('DRAFT','DISAHKAN')
+);
+```
+
+---
+
+## 04_audit_tables.sql
+
+```sql
+CREATE TABLE audit_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  aksi VARCHAR(100),
+  data_lama TEXT,
+  data_baru TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+# NEXT STEP
+
+➡️ Setelah database ini:
+
+* lanjut **IMPLEMENTASI BACKEND (Auth + CRUD Anggota)**
+* endpoint real + middleware
