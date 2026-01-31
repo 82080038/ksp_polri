@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buku Besar</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Buku Besar</h2>
+    <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
+    
+    <h3>Lihat Buku Besar</h3>
+    <form id="bukuBesarForm">
+        <select name="account_id" id="accountSelect" required>
+            <option value="">Pilih Akun</option>
+        </select><br>
+        <input type="date" name="start_date" placeholder="Tanggal Mulai">
+        <input type="date" name="end_date" placeholder="Tanggal Akhir"><br>
+        <button type="submit">Tampilkan</button>
+    </form>
+
+    <h3>Transaksi</h3>
+    <div id="bukuBesarContent"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadAccounts();
+
+            $('#bukuBesarForm').on('submit', function(e) {
+                e.preventDefault();
+                let params = $(this).serialize();
+                $.get('../backend/public/index.php?path=accounting/bukuBesar&' + params, function(data) {
+                    if (data.status) {
+                        let html = '<table border="1"><tr><th>Tanggal</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Ref</th></tr>';
+                        data.data.forEach(t => {
+                            html += `<tr><td>${t.tanggal}</td><td>${formatRupiah(t.debit)}</td><td>${formatRupiah(t.kredit)}</td><td>${formatRupiah(t.saldo)}</td><td>${t.reference_type}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#bukuBesarContent').html(html);
+                    } else {
+                        $('#bukuBesarContent').html('<p>' + data.message + '</p>');
+                    }
+                }, 'json');
+            });
+
+            function loadAccounts() {
+                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
+                    if (data.status) {
+                        let options = '<option value="">Pilih Akun</option>';
+                        data.data.forEach(a => {
+                            options += `<option value="${a.id}">${a.kode_akun} - ${a.nama_akun}</option>`;
+                        });
+                        $('#accountSelect').html(options);
+                    }
+                }, 'json');
+            }
+
+            function formatRupiah(angka) {
+                return 'Rp ' + parseFloat(angka).toLocaleString('id-ID');
+            }
+        });
+    </script>
+</body>
+</html>

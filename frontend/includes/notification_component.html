@@ -1,0 +1,272 @@
+<!-- Notification Bell Component - Include this in all user pages -->
+<div class="notification-container">
+    <div class="notification-bell" id="notificationBell">
+        <span class="bell-icon">🔔</span>
+        <span class="notification-badge" id="notificationBadge">0</span>
+    </div>
+    <div class="notification-dropdown" id="notificationDropdown">
+        <div class="notification-header">
+            <h4>Notifikasi</h4>
+            <button id="markAllRead">Tandai semua dibaca</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="no-notifications">Tidak ada notifikasi baru</p>
+        </div>
+        <div class="notification-footer">
+            <a href="preferences.html">Pengaturan Notifikasi</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.notification-container {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-bell {
+    cursor: pointer;
+    padding: 10px;
+    position: relative;
+}
+
+.bell-icon {
+    font-size: 24px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #f44336;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+}
+
+.notification-badge.show {
+    display: block;
+}
+
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 350px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+.notification-dropdown.show {
+    display: block;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-header h4 {
+    margin: 0;
+}
+
+.notification-header button {
+    background: none;
+    border: none;
+    color: #2196F3;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: #f5f5f5;
+}
+
+.notification-item.unread {
+    background: #e3f2fd;
+}
+
+.notification-item.unread:hover {
+    background: #bbdefb;
+}
+
+.notification-item .title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.notification-item .message {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.notification-item .time {
+    font-size: 12px;
+    color: #999;
+}
+
+.notification-item .actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.notification-item .actions button {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.notification-item .actions button:hover {
+    color: #666;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+}
+
+.notification-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.notification-footer a {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 14px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Load notification count
+    loadNotificationCount();
+    
+    // Bell click
+    $('#notificationBell').on('click', function(e) {
+        e.stopPropagation();
+        $('#notificationDropdown').toggleClass('show');
+        if ($('#notificationDropdown').hasClass('show')) {
+            loadNotifications();
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    $(document).on('click', function() {
+        $('#notificationDropdown').removeClass('show');
+    });
+    
+    $('#notificationDropdown').on('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    // Mark all as read
+    $('#markAllRead').on('click', function() {
+        $.post('../backend/public/index.php?path=notifikasi/markAllAsRead', function(data) {
+            if (data.status) {
+                loadNotificationCount();
+                loadNotifications();
+            }
+        }, 'json');
+    });
+    
+    // Poll for new notifications every 30 seconds
+    setInterval(loadNotificationCount, 30000);
+});
+
+function loadNotificationCount() {
+    $.get('../backend/public/index.php?path=notifikasi/unreadCount', function(data) {
+        if (data.status) {
+            const badge = $('#notificationBadge');
+            badge.text(data.data.count);
+            if (data.data.count > 0) {
+                badge.addClass('show');
+            } else {
+                badge.removeClass('show');
+            }
+        }
+    }, 'json');
+}
+
+function loadNotifications() {
+    $.get('../backend/public/index.php?path=notifikasi/myNotifications', function(data) {
+        if (data.status) {
+            const list = $('#notificationList');
+            if (data.data.notifications.length === 0) {
+                list.html('<p class="no-notifications">Tidak ada notifikasi baru</p>');
+            } else {
+                let html = '';
+                data.data.notifications.forEach(function(n) {
+                    const time = new Date(n.created_at).toLocaleString('id-ID');
+                    const unreadClass = n.is_read == 0 ? 'unread' : '';
+                    html += `
+                        <div class="notification-item ${unreadClass}" data-id="${n.id}">
+                            <div class="title">${n.judul}</div>
+                            <div class="message">${n.pesan}</div>
+                            <div class="time">${time}</div>
+                            <div class="actions">
+                                ${n.is_read == 0 ? '<button onclick="markAsRead(' + n.id + ')">Tandai dibaca</button>' : ''}
+                                <button onclick="dismissNotification(' + n.id + ')">Sembunyikan</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.html(html);
+                
+                // Click notification to mark as read
+                $('.notification-item').on('click', function() {
+                    const id = $(this).data('id');
+                    markAsRead(id);
+                });
+            }
+        }
+    }, 'json');
+}
+
+function markAsRead(id) {
+    $.post('../backend/public/index.php?path=notifikasi/markAsRead', {id: id}, function(data) {
+        if (data.status) {
+            loadNotificationCount();
+            loadNotifications();
+        }
+    }, 'json');
+}
+
+function dismissNotification(id) {
+    $.post('../backend/public/index.php?path=notifikasi/dismiss', {id: id}, function(data) {
+        if (data.status) {
+            loadNotifications();
+        }
+    }, 'json');
+}
+</script>

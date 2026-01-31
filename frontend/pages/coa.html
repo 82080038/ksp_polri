@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart of Accounts</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Chart of Accounts (Kode Akun)</h2>
+    <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
+    
+    <h3>Tambah Kode Akun</h3>
+    <form id="coaForm">
+        <input type="text" name="kode_akun" placeholder="Kode Akun (e.g. 1101)" required><br>
+        <input type="text" name="nama_akun" placeholder="Nama Akun" required><br>
+        <select name="kategori" required>
+            <option value="">Pilih Kategori</option>
+            <option value="ASET">Aset</option>
+            <option value="KEWAJIBAN">Kewajiban</option>
+            <option value="MODAL">Modal</option>
+            <option value="PENDAPATAN">Pendapatan</option>
+            <option value="BEBAN">Beban</option>
+        </select><br>
+        <input type="number" name="saldo_awal" placeholder="Saldo Awal" step="0.01" value="0"><br>
+        <button type="submit">Simpan</button>
+    </form>
+
+    <h3>Daftar Kode Akun</h3>
+    <div id="coaList"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadCoa();
+
+            $('#coaForm').on('submit', function(e) {
+                e.preventDefault();
+                $.post('../backend/public/index.php?path=accounting/coa/create', $(this).serialize(), function(data) {
+                    alert(data.message);
+                    if (data.status) {
+                        $('#coaForm')[0].reset();
+                        loadCoa();
+                    }
+                }, 'json');
+            });
+
+            function loadCoa() {
+                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
+                    if (data.status) {
+                        let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th></tr>';
+                        data.data.forEach(a => {
+                            html += `<tr><td>${a.kode_akun}</td><td>${a.nama_akun}</td><td>${a.kategori}</td><td>${formatRupiah(a.saldo_awal)}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#coaList').html(html);
+                    }
+                }, 'json');
+            }
+
+            function formatRupiah(angka) {
+                return 'Rp ' + parseFloat(angka).toLocaleString('id-ID');
+            }
+        });
+    </script>
+</body>
+</html>

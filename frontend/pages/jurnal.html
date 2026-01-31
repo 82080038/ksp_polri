@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jurnal Umum</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Jurnal Umum</h2>
+    <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
+    
+    <h3>Tambah Jurnal</h3>
+    <form id="jurnalForm">
+        <input type="date" name="tanggal" required><br>
+        <textarea name="deskripsi" placeholder="Deskripsi Jurnal" required></textarea><br>
+        
+        <h4>Detail Jurnal</h4>
+        <div id="jurnalDetails">
+            <div class="detail-row">
+                <select name="account_id[]" class="account-select" required>
+                    <option value="">Pilih Akun</option>
+                </select>
+                <input type="number" name="debit[]" placeholder="Debit" step="0.01" value="0">
+                <input type="number" name="kredit[]" placeholder="Kredit" step="0.01" value="0">
+            </div>
+            <div class="detail-row">
+                <select name="account_id[]" class="account-select" required>
+                    <option value="">Pilih Akun</option>
+                </select>
+                <input type="number" name="debit[]" placeholder="Debit" step="0.01" value="0">
+                <input type="number" name="kredit[]" placeholder="Kredit" step="0.01" value="0">
+            </div>
+        </div>
+        <button type="button" id="addRow">Tambah Baris</button><br><br>
+        <button type="submit">Simpan Jurnal</button>
+    </form>
+
+    <h3>Daftar Jurnal</h3>
+    <div id="jurnalList"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadAccounts();
+            loadJurnal();
+
+            $('#addRow').on('click', function() {
+                let row = $('.detail-row:first').clone();
+                row.find('input').val('0');
+                row.find('select').val('');
+                $('#jurnalDetails').append(row);
+            });
+
+            $('#jurnalForm').on('submit', function(e) {
+                e.preventDefault();
+                $.post('../backend/public/index.php?path=accounting/jurnal/create', $(this).serialize(), function(data) {
+                    alert(data.message);
+                    if (data.status) {
+                        $('#jurnalForm')[0].reset();
+                        loadJurnal();
+                    }
+                }, 'json');
+            });
+
+            function loadAccounts() {
+                $.get('../backend/public/index.php?path=accounting/coa/list', function(data) {
+                    if (data.status) {
+                        let options = '<option value="">Pilih Akun</option>';
+                        data.data.forEach(a => {
+                            options += `<option value="${a.id}">${a.kode_akun} - ${a.nama_akun}</option>`;
+                        });
+                        $('.account-select').html(options);
+                    }
+                }, 'json');
+            }
+
+            function loadJurnal() {
+                $.get('../backend/public/index.php?path=accounting/jurnal/list', function(data) {
+                    if (data.status) {
+                        let html = '<table border="1"><tr><th>Tanggal</th><th>Nomor</th><th>Deskripsi</th></tr>';
+                        data.data.forEach(j => {
+                            html += `<tr><td>${j.tanggal}</td><td>${j.nomor_jurnal}</td><td>${j.deskripsi}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#jurnalList').html(html);
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

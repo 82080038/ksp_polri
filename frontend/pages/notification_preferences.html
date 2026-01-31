@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pengaturan Notifikasi - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Pengaturan Notifikasi</h2>
+    <a href="dashboard_anggota.html">Kembali ke Dashboard</a>
+
+    <h3>Preferensi Notifikasi</h3>
+    <form id="preferencesForm">
+        <table border="1">
+            <tr>
+                <th>Jenis Notifikasi</th>
+                <th>Email</th>
+                <th>UI Aplikasi</th>
+            </tr>
+            <tr>
+                <td>Tunggakan Angsuran</td>
+                <td><input type="checkbox" name="email_tunggakan" value="1"></td>
+                <td><input type="checkbox" name="ui_tunggakan" value="1"></td>
+            </tr>
+            <tr>
+                <td>Status Pinjaman</td>
+                <td><input type="checkbox" name="email_pinjaman" value="1"></td>
+                <td><input type="checkbox" name="ui_pinjaman" value="1"></td>
+            </tr>
+            <tr>
+                <td>Pembagian SHU</td>
+                <td><input type="checkbox" name="email_shu" value="1"></td>
+                <td><input type="checkbox" name="ui_shu" value="1"></td>
+            </tr>
+        </table>
+        <br>
+        <button type="submit">Simpan Preferensi</button>
+    </form>
+
+    <h3>Riwayat Notifikasi</h3>
+    <div id="notificationHistory"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadPreferences();
+            loadHistory();
+
+            $('#preferencesForm').on('submit', function(e) {
+                e.preventDefault();
+                const formData = {};
+                $(this).serializeArray().forEach(function(item) {
+                    formData[item.name] = item.value;
+                });
+
+                $.post('../backend/public/index.php?path=notifikasi/updatePreferences', formData, function(data) {
+                    alert(data.message);
+                }, 'json');
+            });
+
+            function loadPreferences() {
+                $.get('../backend/public/index.php?path=notifikasi/getPreferences', function(data) {
+                    if (data.status) {
+                        $('input[name="email_tunggakan"]').prop('checked', data.data.email_tunggakan == 1);
+                        $('input[name="ui_tunggakan"]').prop('checked', data.data.ui_tunggakan == 1);
+                        $('input[name="email_pinjaman"]').prop('checked', data.data.email_pinjaman == 1);
+                        $('input[name="ui_pinjaman"]').prop('checked', data.data.ui_pinjaman == 1);
+                        $('input[name="email_shu"]').prop('checked', data.data.email_shu == 1);
+                        $('input[name="ui_shu"]').prop('checked', data.data.ui_shu == 1);
+                    }
+                }, 'json');
+            }
+
+            function loadHistory() {
+                $.get('../backend/public/index.php?path=notifikasi/myNotifications&include_read=1', function(data) {
+                    if (data.status && data.data.notifications.length > 0) {
+                        let html = '<table border="1"><tr><th>Waktu</th><th>Judul</th><th>Pesan</th><th>Status</th></tr>';
+                        data.data.notifications.forEach(function(n) {
+                            const time = new Date(n.created_at).toLocaleString('id-ID');
+                            const status = n.is_read == 1 ? 'Dibaca' : 'Belum dibaca';
+                            html += `<tr><td>${time}</td><td>${n.judul}</td><td>${n.pesan}</td><td>${status}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#notificationHistory').html(html);
+                    } else {
+                        $('#notificationHistory').html('<p>Tidak ada riwayat notifikasi.</p>');
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

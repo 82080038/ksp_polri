@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kelola Notifikasi Email - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <h2>Kelola Notifikasi Email</h2>
+    <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
+
+    <h3>Test Konfigurasi Email</h3>
+    <form id="testEmailForm">
+        <input type="email" name="email" placeholder="Masukkan email untuk test" required>
+        <button type="submit">Kirim Email Test</button>
+    </form>
+
+    <h3>Notifikasi Tunggakan</h3>
+    <button id="processTunggakanBtn">Proses Semua Tunggakan & Kirim Notifikasi</button>
+    <div id="tunggakanResult"></div>
+
+    <h3>Broadcast SHU</h3>
+    <form id="broadcastShuForm">
+        <input type="number" name="tahun" placeholder="Tahun SHU" required>
+        <button type="submit">Kirim Notifikasi SHU ke Semua Anggota</button>
+    </form>
+
+    <h3>Log Email Terkirim</h3>
+    <div id="emailLogs"></div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadEmailLogs();
+
+            // Test Email
+            $('#testEmailForm').on('submit', function(e) {
+                e.preventDefault();
+                $.post('../backend/public/index.php?path=notification/testEmail', $(this).serialize(), function(data) {
+                    alert(data.message);
+                }, 'json');
+            });
+
+            // Process Tunggakan
+            $('#processTunggakanBtn').on('click', function() {
+                if (!confirm('Kirim notifikasi ke semua anggota yang menunggak?')) return;
+                
+                $('#tunggakanResult').html('<p>Sedang memproses...</p>');
+                $.post('../backend/public/index.php?path=notification/processAllTunggakan', function(data) {
+                    $('#tunggakanResult').html('<p>' + data.message + '</p>');
+                    loadEmailLogs();
+                }, 'json');
+            });
+
+            // Broadcast SHU
+            $('#broadcastShuForm').on('submit', function(e) {
+                e.preventDefault();
+                if (!confirm('Kirim notifikasi SHU ke semua anggota?')) return;
+                
+                $.post('../backend/public/index.php?path=notification/broadcastShu', $(this).serialize(), function(data) {
+                    alert(data.message);
+                    loadEmailLogs();
+                }, 'json');
+            });
+
+            function loadEmailLogs() {
+                $.get('../backend/public/index.php?path=notification/emailLogs', function(data) {
+                    if (data.status) {
+                        let html = '<table border="1"><tr><th>Waktu</th><th>Penerima</th><th>Subject</th><th>Status</th></tr>';
+                        data.data.forEach(log => {
+                            let statusColor = log.status === 'sent' ? 'green' : (log.status === 'failed' ? 'red' : 'orange');
+                            html += `<tr><td>${log.sent_at}</td><td>${log.recipient}</td><td>${log.subject}</td><td style="color:${statusColor}">${log.status}</td></tr>`;
+                        });
+                        html += '</table>';
+                        $('#emailLogs').html(html);
+                    }
+                }, 'json');
+            }
+        });
+    </script>
+</body>
+</html>

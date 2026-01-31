@@ -237,6 +237,216 @@ class Router {
                 require '../app/controllers/AgentController.php';
                 AgentController::delete();
                 break;
+            // Accounting routes - Chart of Accounts
+            case 'accounting/coa/list':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::coaList();
+                break;
+            case 'accounting/coa/create':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::coaCreate();
+                break;
+            case 'accounting/coa/detail':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::coaDetail();
+                break;
+            case 'accounting/coa/update':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::coaUpdate();
+                break;
+            case 'accounting/coa/delete':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::coaDelete();
+                break;
+            // Accounting routes - Journal Entries
+            case 'accounting/jurnal/list':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::jurnalList();
+                break;
+            case 'accounting/jurnal/create':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::jurnalCreate();
+                break;
+            case 'accounting/jurnal/detail':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::jurnalDetail();
+                break;
+            // Accounting routes - General Ledger
+            case 'accounting/bukuBesar':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::bukuBesar();
+                break;
+            case 'accounting/neracaSaldo':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::neracaSaldo();
+                break;
+            case 'accounting/labaRugi':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::labaRugi();
+                break;
+            // Accounting routes - Fixed Assets
+            case 'accounting/asset/list':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetList();
+                break;
+            case 'accounting/asset/create':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetCreate();
+                break;
+            case 'accounting/asset/detail':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetDetail();
+                break;
+            case 'accounting/asset/update':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetUpdate();
+                break;
+            case 'accounting/asset/delete':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetDelete();
+                break;
+            case 'accounting/asset/calculateDepreciation':
+                Auth::requireLogin();
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetCalculateDepreciation();
+                break;
+            case 'accounting/asset/saveDepreciation':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/AccountingController.php';
+                AccountingController::assetSaveDepreciation();
+                break;
+            // Dashboard Analytics routes
+            case 'dashboard/stats':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getStats();
+                break;
+            case 'dashboard/simpananTrend':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getSimpananTrend();
+                break;
+            case 'dashboard/pinjamanStats':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getPinjamanStats();
+                break;
+            case 'dashboard/angsuranStats':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getAngsuranStats();
+                break;
+            case 'dashboard/shuHistory':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getShuHistory();
+                break;
+            case 'dashboard/financialOverview':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getFinancialOverview();
+                break;
+            case 'dashboard/recentActivities':
+                Auth::requireLogin();
+                require '../app/controllers/DashboardController.php';
+                DashboardController::getRecentActivities();
+                break;
+            // Notification routes
+            case 'notification/sendTunggakan':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/NotificationController.php';
+                NotificationController::sendTunggakanManual();
+                break;
+            case 'notification/processAllTunggakan':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/NotificationController.php';
+                NotificationController::processAllTunggakan();
+                break;
+            case 'notification/broadcastShu':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/NotificationController.php';
+                NotificationController::broadcastShu();
+                break;
+            case 'notification/emailLogs':
+                Auth::requireLogin();
+                require '../app/controllers/NotificationController.php';
+                NotificationController::getEmailLogs();
+                break;
+            case 'notification/testEmail':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/NotificationController.php';
+                NotificationController::testEmail();
+                break;
+            // In-App Notification routes
+            case 'notifikasi/myNotifications':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::getMyNotifications();
+                break;
+            case 'notifikasi/unreadCount':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::getUnreadCount();
+                break;
+            case 'notifikasi/markAsRead':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::markAsRead();
+                break;
+            case 'notifikasi/markAllAsRead':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::markAllAsRead();
+                break;
+            case 'notifikasi/dismiss':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::dismiss();
+                break;
+            case 'notifikasi/getPreferences':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::getPreferences();
+                break;
+            case 'notifikasi/updatePreferences':
+                Auth::requireLogin();
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::updatePreferences();
+                break;
+            case 'notifikasi/all':
+                Auth::requireLogin();
+                Auth::requireRole('pengurus');
+                require '../app/controllers/NotifikasiController.php';
+                NotifikasiController::getAllNotifications();
+                break;
             default:
                 echo json_encode(['status' => false, 'message' => 'Endpoint not found']);
         }

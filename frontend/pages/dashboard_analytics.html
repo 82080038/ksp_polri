@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Analytics - KSP POLRI</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Dashboard Analytics KSP POLRI</h1>
+            <a href="dashboard_pengurus.html" class="btn-back">Kembali ke Dashboard</a>
+        </header>
+
+        <!-- Statistik Cards -->
+        <section class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3>Total Anggota Aktif</h3>
+                    <p class="stat-value" id="totalAnggota">-</p>
+                </div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3>Total Simpanan</h3>
+                    <p class="stat-value" id="totalSimpanan">-</p>
+                </div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon">📋</div>
+                <div class="stat-info">
+                    <h3>Pinjaman Aktif</h3>
+                    <p class="stat-value" id="pinjamanAktif">-</p>
+                </div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3>Tunggakan</h3>
+                    <p class="stat-value" id="tunggakan">-</p>
+                </div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-icon">📈</div>
+                <div class="stat-info">
+                    <h3>SHU Tahun Ini</h3>
+                    <p class="stat-value" id="shuTahunIni">-</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <section class="charts-grid">
+            <!-- Simpanan Trend Chart -->
+            <div class="chart-card">
+                <h3>Trend Simpanan Bulanan</h3>
+                <canvas id="simpananChart"></canvas>
+            </div>
+
+            <!-- Pinjaman Status Chart -->
+            <div class="chart-card">
+                <h3>Status Pinjaman</h3>
+                <canvas id="pinjamanStatusChart"></canvas>
+            </div>
+
+            <!-- Pinjaman Monthly Trend -->
+            <div class="chart-card">
+                <h3>Trend Pinjaman per Bulan</h3>
+                <canvas id="pinjamanTrendChart"></canvas>
+            </div>
+
+            <!-- Angsuran Chart -->
+            <div class="chart-card">
+                <h3>Pembayaran Angsuran</h3>
+                <canvas id="angsuranChart"></canvas>
+            </div>
+
+            <!-- SHU History Chart -->
+            <div class="chart-card">
+                <h3>Histori SHU 5 Tahun</h3>
+                <canvas id="shuChart"></canvas>
+            </div>
+
+            <!-- Financial Overview -->
+            <div class="chart-card">
+                <h3>Overview Keuangan</h3>
+                <canvas id="financialChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Recent Activities -->
+        <section class="activities-section">
+            <h3>Aktivitas Terbaru</h3>
+            <div id="recentActivities" class="activities-list"></div>
+        </section>
+    </div>
+
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
+    <script src="../assets/js/dashboard_analytics.js"></script>
+</body>
+</html>
