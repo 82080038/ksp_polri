@@ -100,9 +100,45 @@ class AuthController {
         }
         
         // Validasi required fields
-        if (/^[a-zA-Z0-9_]{3,20}$/
+        if (empty($data['username']) || empty($data['password']) || empty($data['nama_lengkap'])) {
+            jsonResponse(false, 'Username, password, dan nama lengkap wajib diisi');
+            return;
+        }
         
-        try {
+        if (empty($data['koperasi_id'])) {
+            jsonResponse(false, 'Pilih koperasi terlebih dahulu');
+            return;
+        }
+        
+        // Validasi format username (alphanumeric + underscore, 3-20 chars)
+        if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $data['username'])) {
+            jsonResponse(false, 'Username harus 3-20 karakter, hanya huruf, angka, dan underscore');
+            return;
+        }
+        
+        // Validasi password minimal 8 karakter
+        if (strlen($data['password']) < 8) {
+            jsonResponse(false, 'Password minimal 8 karakter');
+            return;
+        }
+        
+        // Validasi email format jika diisi
+        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            jsonResponse(false, 'Format email tidak valid');
+            return;
+        }
+        
+        // Validasi format telepon jika diisi (Indonesia)
+        if (!empty($data['telepon']) && !preg_match('/^[0-9+\-\s]{10,15}$/', $data['telepon'])) {
+            jsonResponse(false, 'Format telepon tidak valid (10-15 digit)');
+            return;
+        }
+        
+        // Validasi alamat
+        if (empty($data['Prop_desa'])) {
+            jsonResponse(false, 'Alamat lengkap wajib diisi (sampai desa/kelurahan)');
+            return;
+        }
             $user = new User();
             
             // Cek username sudah ada
