@@ -138,7 +138,7 @@
             </div>
 
             <div class="login-footer">
-                <p>Belum punya akun? Hubungi admin untuk dibuatkan akses.</p>
+                <p>Belum punya akun? <a href="register.html">Daftar sekarang</a></p>
                 <p><a href="#" onclick="forgotPassword()">Lupa password?</a></p>
             </div>
         </div>
@@ -149,6 +149,9 @@
 
     <script>
         $(document).ready(function () {
+            // Check koperasi exists before allowing login
+            checkKoperasiExists();
+
             $('#loginForm').on('submit', function (e) {
                 e.preventDefault();
 
@@ -199,6 +202,15 @@
                 });
             });
         });
+
+        function checkKoperasiExists() {
+            $.get('../../backend/public/index.php?path=auth/checkKoperasiExists', function (data) {
+                if (!data.data.exists) {
+                    showAlert('warning', 'Belum ada koperasi terdaftar. Silakan <a href="register.html">daftar koperasi</a> terlebih dahulu.');
+                    $('#loginBtn').prop('disabled', true);
+                }
+            });
+        }
 
         function showAlert(type, message) {
             const alertHtml = `

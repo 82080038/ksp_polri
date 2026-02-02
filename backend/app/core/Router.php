@@ -7,6 +7,44 @@ class Router {
                 require '../app/controllers/AuthController.php';
                 AuthController::login();
                 break;
+            // Auth & Registration routes (no login required)
+            case 'auth/checkKoperasiExists':
+                require '../app/controllers/AuthController.php';
+                AuthController::checkKoperasiExists();
+                break;
+            case 'auth/getKoperasiList':
+                require '../app/controllers/AuthController.php';
+                AuthController::getKoperasiList();
+                break;
+            case 'auth/registerKoperasi':
+                require '../app/controllers/AuthController.php';
+                AuthController::registerKoperasi();
+                break;
+            case 'auth/registerUser':
+                require '../app/controllers/AuthController.php';
+                AuthController::registerUser();
+                break;
+            // Alamat routes (read-only from alamat_db)
+            case 'alamat/provinsi':
+                require '../app/controllers/AlamatController.php';
+                AlamatController::getProvinsi();
+                break;
+            case 'alamat/kabupaten':
+                require '../app/controllers/AlamatController.php';
+                AlamatController::getKabupaten();
+                break;
+            case 'alamat/kecamatan':
+                require '../app/controllers/AlamatController.php';
+                AlamatController::getKecamatan();
+                break;
+            case 'alamat/desa':
+                require '../app/controllers/AlamatController.php';
+                AlamatController::getDesa();
+                break;
+            case 'alamat/detail':
+                require '../app/controllers/AlamatController.php';
+                AlamatController::getAlamatDetail();
+                break;
             case 'anggota/create':
                 Auth::requireLogin();
                 Auth::requireRole('pengurus');
