@@ -43,6 +43,30 @@ class AuthController {
             return;
         }
         
+        // Validasi format kode koperasi
+        if (!preg_match('/^[A-Z0-9]{3,10}$/', $data['kode_koperasi'])) {
+            jsonResponse(false, 'Kode koperasi harus 3-10 karakter huruf besar dan angka');
+            return;
+        }
+        
+        // Validasi email format jika diisi
+        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            jsonResponse(false, 'Format email tidak valid');
+            return;
+        }
+        
+        // Validasi format telepon jika diisi
+        if (!empty($data['telepon']) && !preg_match('/^[0-9+\-\s]{10,15}$/', $data['telepon'])) {
+            jsonResponse(false, 'Format telepon tidak valid (10-15 digit)');
+            return;
+        }
+        
+        // Validasi format NPWP jika diisi (Indonesia)
+        if (!empty($data['npwp']) && !preg_match('/^[0-9]{2}\.[0-9]{3}\.[0-9]{3}\.[0-9]{1}-[0-9]{3}\.[0-9]{3}$/', $data['npwp'])) {
+            jsonResponse(false, 'Format NPWP tidak valid (XX.XXX.XXX.X-XXX.XXX)');
+            return;
+        }
+        
         // Validasi alamat
         if (empty($data['Prop_desa'])) {
             jsonResponse(false, 'Alamat lengkap wajib diisi (sampai desa/kelurahan)');
@@ -76,27 +100,7 @@ class AuthController {
         }
         
         // Validasi required fields
-        if (empty($data['username']) || empty($data['password']) || empty($data['nama_lengkap'])) {
-            jsonResponse(false, 'Username, password, dan nama lengkap wajib diisi');
-            return;
-        }
-        
-        if (empty($data['koperasi_id'])) {
-            jsonResponse(false, 'Pilih koperasi terlebih dahulu');
-            return;
-        }
-        
-        // Validasi password minimal 8 karakter
-        if (strlen($data['password']) < 8) {
-            jsonResponse(false, 'Password minimal 8 karakter');
-            return;
-        }
-        
-        // Validasi alamat
-        if (empty($data['Prop_desa'])) {
-            jsonResponse(false, 'Alamat lengkap wajib diisi (sampai desa/kelurahan)');
-            return;
-        }
+        if (/^[a-zA-Z0-9_]{3,20}$/
         
         try {
             $user = new User();
