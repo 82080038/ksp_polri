@@ -139,6 +139,8 @@ class AuthController {
             jsonResponse(false, 'Alamat lengkap wajib diisi (sampai desa/kelurahan)');
             return;
         }
+        
+        try {
             $user = new User();
             
             // Cek username sudah ada
