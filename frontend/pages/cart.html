@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Keranjang Belanja</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Keranjang Belanja</h2>
     <div id="cartItems"></div>
@@ -11,11 +18,11 @@
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadCart();
 
             function loadCart() {
-                $.get('../backend/public/index.php?path=cart/list', function(data) {
+                $.get('../../backend/public/index.php?path=cart/list', function (data) {
                     if (data.status) {
                         let html = '<table><tr><th>Produk</th><th>Harga</th><th>Qty</th><th>Subtotal</th><th>Aksi</th></tr>';
                         let total = 0;
@@ -38,24 +45,24 @@
                 }, 'json');
             }
 
-            $(document).on('change', '.qty-input', function() {
+            $(document).on('change', '.qty-input', function () {
                 const produkId = $(this).data('id');
                 const qty = $(this).val();
-                $.post('../backend/public/index.php?path=cart/updateQty', {produk_id: produkId, qty: qty}, function(data) {
+                $.post('../../backend/public/index.php?path=cart/updateQty', { produk_id: produkId, qty: qty }, function (data) {
                     loadCart();
                 }, 'json');
             });
 
-            $(document).on('click', '.remove-item', function() {
+            $(document).on('click', '.remove-item', function () {
                 const produkId = $(this).data('id');
-                $.post('../backend/public/index.php?path=cart/remove', {produk_id: produkId}, function(data) {
+                $.post('../../backend/public/index.php?path=cart/remove', { produk_id: produkId }, function (data) {
                     loadCart();
                 }, 'json');
             });
 
-            $('#checkoutBtn').click(function() {
+            $('#checkoutBtn').click(function () {
                 // For simplicity, create order with basic data
-                $.get('../backend/public/index.php?path=cart/list', function(cartData) {
+                $.get('../../backend/public/index.php?path=cart/list', function (cartData) {
                     if (cartData.status && cartData.data.length > 0) {
                         const details = cartData.data.map(c => ({
                             produk_id: c.produk_id,
@@ -65,16 +72,16 @@
                             subtotal: c.harga * c.qty
                         }));
                         const total = details.reduce((sum, d) => sum + d.subtotal, 0);
-                        $.post('../backend/public/index.php?path=order/create', {
+                        $.post('../../backend/public/index.php?path=order/create', {
                             total_harga: total,
                             total_bayar: total,
                             metode_pengambilan: 'DI_TOKO',
                             metode_pembayaran: 'TUNAI',
                             details: JSON.stringify(details)
-                        }, function(orderData) {
+                        }, function (orderData) {
                             if (orderData.status) {
                                 alert('Order berhasil dibuat');
-                                $.post('../backend/public/index.php?path=cart/clear', {}, function() {
+                                $.post('../../backend/public/index.php?path=cart/clear', {}, function () {
                                     loadCart();
                                 }, 'json');
                             } else {
@@ -89,4 +96,5 @@
         });
     </script>
 </body>
+
 </html>

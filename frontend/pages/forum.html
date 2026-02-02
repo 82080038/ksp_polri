@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <title>Forum Anggota - KSP POLRI</title>
     <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -43,7 +47,7 @@
             background: white;
             border-radius: 15px;
             padding: 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #2196F3;
             transition: all 0.3s ease;
             cursor: pointer;
@@ -51,7 +55,7 @@
 
         .category-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
         .category-header {
@@ -89,7 +93,7 @@
         .thread-list {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -185,7 +189,7 @@
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .search-input {
@@ -205,7 +209,7 @@
         .thread-detail {
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
@@ -318,7 +322,7 @@
             background: white;
             border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
 
@@ -385,8 +389,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .stats-bar {
@@ -396,7 +405,7 @@
             border-radius: 10px;
             padding: 1rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .stat-item {
@@ -442,6 +451,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="forum-container">
         <!-- Header -->
@@ -460,7 +470,8 @@
 
         <!-- Search Bar -->
         <div class="search-bar">
-            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Cari thread, post, atau anggota...">
+            <input type="text" class="search-input" id="searchInput"
+                placeholder="🔍 Cari thread, post, atau anggota...">
         </div>
 
         <!-- Forum Actions -->
@@ -507,12 +518,12 @@
         let currentCategoryId = null;
         let currentThreadId = null;
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadForumStats();
             showCategories();
 
             // Search functionality
-            $('#searchInput').on('keypress', function(e) {
+            $('#searchInput').on('keypress', function (e) {
                 if (e.which === 13) { // Enter key
                     performSearch($(this).val());
                 }
@@ -520,7 +531,7 @@
         });
 
         function loadForumStats() {
-            $.get('../backend/public/index.php?path=forum/getStats', function(data) {
+            $.get('../../backend/public/index.php?path=forum/getStats', function (data) {
                 if (data.status) {
                     const stats = data.data;
                     $('#statCategories').text(stats.total_categories);
@@ -536,7 +547,7 @@
             currentView = 'categories';
             $('#breadcrumbNav').hide();
 
-            $.get('../backend/public/index.php?path=forum/getCategories', function(data) {
+            $.get('../../backend/public/index.php?path=forum/getCategories', function (data) {
                 if (data.status) {
                     displayCategories(data.data.categories);
                 } else {
@@ -592,7 +603,7 @@
             `;
             $('#forumContent').html(loadingHtml);
 
-            $.get(`../backend/public/index.php?path=forum/getThreads&category_id=${categoryId}`, function(data) {
+            $.get(`../../backend/public/index.php?path=forum/getThreads&category_id=${categoryId}`, function (data) {
                 if (data.status) {
                     displayThreads(data.data.threads);
                 } else {
@@ -659,7 +670,7 @@
             `;
             $('#forumContent').html(loadingHtml);
 
-            $.get(`../backend/public/index.php?path=forum/getThread&id=${threadId}`, function(data) {
+            $.get(`../../backend/public/index.php?path=forum/getThread&id=${threadId}`, function (data) {
                 if (data.status) {
                     displayThread(data.data);
                 } else {
@@ -716,7 +727,7 @@
             $('#forumContent').html(html);
 
             // Handle reply form submission
-            $('#replyForm').on('submit', function(e) {
+            $('#replyForm').on('submit', function (e) {
                 e.preventDefault();
                 submitReply();
             });
@@ -726,7 +737,7 @@
             const categories = []; // We'll need to get categories for the dropdown
 
             // First get categories
-            $.get('../backend/public/index.php?path=forum/getCategories', function(data) {
+            $.get('../../backend/public/index.php?path=forum/getCategories', function (data) {
                 if (data.status) {
                     const categoryOptions = data.data.categories.map(cat =>
                         `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`
@@ -760,7 +771,7 @@
                     $('#forumContent').html(formHtml);
 
                     // Handle form submission
-                    $('#newThreadForm').on('submit', function(e) {
+                    $('#newThreadForm').on('submit', function (e) {
                         e.preventDefault();
                         submitNewThread();
                     });
@@ -771,7 +782,7 @@
         function submitNewThread() {
             const formData = $('#newThreadForm').serialize();
 
-            $.post('../backend/public/index.php?path=forum/createThread', formData, function(data) {
+            $.post('../../backend/public/index.php?path=forum/createThread', formData, function (data) {
                 if (data.status) {
                     alert('Thread berhasil dibuat!');
                     if (currentCategoryId) {
@@ -800,7 +811,7 @@
 
             $('.reply-textarea').prop('disabled', true);
 
-            $.post('../backend/public/index.php?path=forum/createPost', formData, function(data) {
+            $.post('../../backend/public/index.php?path=forum/createPost', formData, function (data) {
                 if (data.status) {
                     alert('Balasan berhasil dikirim!');
                     showThread(currentThreadId); // Reload thread
@@ -824,7 +835,7 @@
                 </div>
             `);
 
-            $.get(`../backend/public/index.php?path=forum/search&q=${encodeURIComponent(query)}`, function(data) {
+            $.get(`../../backend/public/index.php?path=forum/search&q=${encodeURIComponent(query)}`, function (data) {
                 if (data.status) {
                     displaySearchResults(data.data.results, query);
                 } else {
@@ -915,14 +926,15 @@
         function reportPost(postId) {
             const reason = prompt('Mengapa Anda melaporkan post ini?');
             if (reason) {
-                $.post('../backend/public/index.php?path=forum/reportPost', {
+                $.post('../../backend/public/index.php?path=forum/reportPost', {
                     post_id: postId,
                     reason: reason
-                }, function(data) {
+                }, function (data) {
                     alert(data.message);
                 }, 'json');
             }
         }
     </script>
 </body>
+
 </html>

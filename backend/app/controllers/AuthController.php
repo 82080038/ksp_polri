@@ -8,9 +8,78 @@ require_once '../app/views/json.php';
 class AuthController {
     
     /**
-     * Cek apakah koperasi sudah terdaftar
-     * Digunakan untuk blokir login/register jika belum ada koperasi
+     * Rate limiting helper
      */
+    private static function checkRateLimit($action, $maxAttempts = 5, $windowSeconds = 300) {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+        
+        $key = "rate_limit_{$action}_" . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $now = time();
+        
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = ['count' => 0, 'window_start' => $now];
+        }
+        
+        $rateData = &$_SESSION[$key];
+        
+        // Reset window if expired
+        if (($now - $rateData['window_start']) > $windowSeconds) {
+            $rateData['count'] = 0;
+            $rateData['window_start'] = $now;
+        }
+        
+        $rateData['count']++;
+        
+        if ($rateData['count'] > $maxAttempts) {
+            jsonResponse(false, "Terlalu banyak percobaan. Coba lagi dalam " . ceil(($windowSeconds - ($now - $rateData['window_start'])) / 60) . " menit.");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Input sanitization helper
+     */
+    private static function sanitizeInput($data) {
+        if (is_array($data)) {
+            return array_map([self::class, 'sanitizeInput'], $data);
+        }
+        
+        if (is_string($data)) {
+            // Remove null bytes and sanitize
+            $data = str_replace("\x00", '', $data);
+            return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+        }
+        
+        return $data;
+    }
+    
+    /**
+     * Validate email format
+     */
+    private static function validateEmail($email) {
+        if (empty($email)) return true; // Optional field
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+    
+    /**
+     * Validate phone format (Indonesian)
+     */
+    private static function validatePhone($phone) {
+        if (empty($phone)) return true; // Optional field
+        return preg_match('/^[0-9+\-\s]{10,15}$/', $phone);
+    }
+    
+    /**
+     * Validate NPWP format (Indonesian)
+     */
+    private static function validateNPWP($npwp) {
+        if (empty($npwp)) return true; // Optional field
+        return preg_match('/^[0-9]{2}\.[0-9]{3}\.[0-9]{3}\.[0-9]{1}-[0-9]{3}\.[0-9]{3}$/', $npwp);
+    }
     public static function checkKoperasiExists() {
         $koperasi = new Koperasi();
         $exists = $koperasi->exists();

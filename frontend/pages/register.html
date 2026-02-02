@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - KSP POLRI</title>
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
+
     <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
     <style>
         body {
@@ -13,7 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .register-container {
@@ -180,18 +185,25 @@
             border-radius: 8px;
             margin-bottom: 15px;
             display: none;
+            border-left: 4px solid;
         }
 
         .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: #fee;
+            color: #c33;
+            border-left-color: #c33;
         }
 
         .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: #efe;
+            color: #363;
+            border-left-color: #363;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: #856404;
         }
 
         .text-center {
@@ -437,7 +449,7 @@
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
         let koperasiExists = false;
-        const API_BASE = '../backend/public/index.php?path=';
+        const API_BASE = '../../backend/public/index.php?path=';
 
         $(document).ready(function () {
             checkKoperasiExists();
@@ -445,42 +457,72 @@
             loadProvinsi('kop');
             loadKoperasiList();
 
-            // User address cascade
+            // Address cascade for user
             $('#userProvinsi').change(function () {
-                loadKabupaten('user', $(this).val());
-                resetSelect('userKabupaten');
-                resetSelect('userKecamatan');
-                resetSelect('userDesa');
+                const provinsiId = $(this).val();
+                if (provinsiId) {
+                    $('#userProvinsiSpinner').show();
+                    loadKabupaten('user', provinsiId);
+                } else {
+                    resetSelect('userKabupaten');
+                    $(this).val('');
+                }
             });
 
             $('#userKabupaten').change(function () {
-                loadKecamatan('user', $(this).val());
-                resetSelect('userKecamatan');
-                resetSelect('userDesa');
+                const kabupatenId = $(this).val();
+                if (kabupatenId) {
+                    $('#userKabupatenSpinner').show();
+                    loadKecamatan('user', kabupatenId);
+                } else {
+                    resetSelect('userKecamatan');
+                    $(this).val('');
+                }
             });
 
             $('#userKecamatan').change(function () {
-                loadDesa('user', $(this).val());
-                resetSelect('userDesa');
+                const kecamatanId = $(this).val();
+                if (kecamatanId) {
+                    $('#userKecamatanSpinner').show();
+                    loadDesa('user', kecamatanId);
+                } else {
+                    resetSelect('userDesa');
+                    $(this).val('');
+                }
             });
 
-            // Koperasi address cascade
+            // Address cascade for koperasi
             $('#kopProvinsi').change(function () {
-                loadKabupaten('kop', $(this).val());
-                resetSelect('kopKabupaten');
-                resetSelect('kopKecamatan');
-                resetSelect('kopDesa');
+                const provinsiId = $(this).val();
+                if (provinsiId) {
+                    $('#kopProvinsiSpinner').show();
+                    loadKabupaten('kop', provinsiId);
+                } else {
+                    resetSelect('kopKabupaten');
+                    $(this).val('');
+                }
             });
 
             $('#kopKabupaten').change(function () {
-                loadKecamatan('kop', $(this).val());
-                resetSelect('kopKecamatan');
-                resetSelect('kopDesa');
+                const kabupatenId = $(this).val();
+                if (kabupatenId) {
+                    $('#kopKabupatenSpinner').show();
+                    loadKecamatan('kop', kabupatenId);
+                } else {
+                    resetSelect('kopKecamatan');
+                    $(this).val('');
+                }
             });
 
             $('#kopKecamatan').change(function () {
-                loadDesa('kop', $(this).val());
-                resetSelect('kopDesa');
+                const kecamatanId = $(this).val();
+                if (kecamatanId) {
+                    $('#kopKecamatanSpinner').show();
+                    loadDesa('kop', kecamatanId);
+                } else {
+                    resetSelect('kopDesa');
+                    $(this).val('');
+                }
             });
 
             // Form submissions
@@ -497,7 +539,12 @@
 
         function checkKoperasiExists() {
             $.get(API_BASE + 'auth/checkKoperasiExists', function (data) {
-                koperasiExists = data.data.exists;
+                if (data && data.data && typeof data.data.exists !== 'undefined') {
+                    koperasiExists = data.data.exists;
+                } else {
+                    console.error('API response invalid for checkKoperasiExists:', data);
+                    koperasiExists = false; // default to false
+                }
                 if (!koperasiExists) {
                     $('#noKoperasiMessage').show();
                     $('#registerFormContainer').hide();
@@ -506,6 +553,9 @@
                     $('#noKoperasiMessage').hide();
                     $('#registerFormContainer').show();
                 }
+            }).fail(function () {
+                console.error('Failed to check koperasi exists');
+                koperasiExists = false;
             });
         }
 
@@ -557,6 +607,8 @@
                     });
                     select.prop('disabled', false);
                 }
+            }).always(function () {
+                $(`#${prefix}ProvinsiSpinner`).hide();
             });
         }
 
@@ -571,6 +623,8 @@
                     });
                     select.prop('disabled', false);
                 }
+            }).always(function () {
+                $(`#${prefix}KabupatenSpinner`).hide();
             });
         }
 
@@ -585,6 +639,8 @@
                     });
                     select.prop('disabled', false);
                 }
+            }).always(function () {
+                $(`#${prefix}KecamatanSpinner`).hide();
             });
         }
 
@@ -603,7 +659,10 @@
                 nama_lengkap: $('#userNama').val(),
                 email: $('#userEmail').val(),
                 telepon: $('#userTelepon').val(),
-                Prop_desa: $('#userDesa').val(),
+                provinsi_id: $('#userProvinsi').val(),
+                kabupaten_id: $('#userKabupaten').val(),
+                kecamatan_id: $('#userKecamatan').val(),
+                desa_id: $('#userDesa').val(),
                 alamat_lengkap: $('#userAlamatLengkap').val()
             };
 
@@ -633,7 +692,10 @@
                 email: $('#kopEmail').val(),
                 nama_pimpinan: $('#kopPimpinan').val(),
                 jabatan_pimpinan: $('#kopJabatan').val(),
-                Prop_desa: $('#kopDesa').val(),
+                provinsi_id: $('#kopProvinsi').val(),
+                kabupaten_id: $('#kopKabupaten').val(),
+                kecamatan_id: $('#kopKecamatan').val(),
+                desa_id: $('#kopDesa').val(),
                 alamat_lengkap: $('#kopAlamatLengkap').val()
             };
 
@@ -664,6 +726,43 @@
             alert.show();
         }
     </script>
+</body>
+
+</html> telepon: $('#kopTelepon').val(),
+email: $('#kopEmail').val(),
+nama_pimpinan: $('#kopPimpinan').val(),
+jabatan_pimpinan: $('#kopJabatan').val(),
+Prop_desa: $('#kopDesa').val(),
+alamat_lengkap: $('#kopAlamatLengkap').val()
+};
+
+$.post(API_BASE + 'auth/registerKoperasi', data, function (response) {
+if (response.status) {
+showAlert('success', response.message + '. Silakan register user atau <a href="login.html">login</a>.');
+$('#formRegisterKoperasi')[0].reset();
+// Reset address selects
+resetSelect('kopKabupaten');
+resetSelect('kopKecamatan');
+resetSelect('kopDesa');
+// Reload koperasi check
+checkKoperasiExists();
+loadKoperasiList();
+} else {
+showAlert('danger', response.message);
+}
+}, 'json').fail(function () {
+showAlert('danger', 'Terjadi kesalahan. Silakan coba lagi.');
+}).always(function () {
+btn.prop('disabled', false).text('Daftar Koperasi');
+});
+}
+
+function showAlert(type, message) {
+const alert = $(`<div class="alert alert-${type}">${message}</div>`);
+$('#alertContainer').html(alert);
+alert.show();
+}
+</script>
 </body>
 
 </html>

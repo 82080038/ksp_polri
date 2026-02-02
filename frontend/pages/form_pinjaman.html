@@ -43,7 +43,7 @@
                     return;
                 }
 
-                $.post('../backend/public/index.php?path=pinjaman/create', $(this).serialize(), function (data) {
+                $.post('../../backend/public/index.php?path=pinjaman/create', $(this).serialize(), function (data) {
                     $('#message').text(data.message || 'Terjadi kesalahan');
                     if (data.status) {
                         $('#pinjamanForm')[0].reset();

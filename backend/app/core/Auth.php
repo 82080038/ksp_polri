@@ -1,9 +1,11 @@
 <?php
 // app/core/Auth.php
-session_start();
 
 class Auth {
     public static function requireLogin() {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['status' => false, 'message' => 'Unauthorized']);
             exit;
@@ -11,6 +13,9 @@ class Auth {
     }
 
     public static function requireRole($role) {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         if ($_SESSION['role'] !== $role) {
             echo json_encode(['status' => false, 'message' => 'Forbidden']);
             exit;
@@ -18,6 +23,9 @@ class Auth {
     }
 
     public static function generateCSRF() {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         if (!isset($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
@@ -25,6 +33,9 @@ class Auth {
     }
 
     public static function validateCSRF($token) {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         if (!isset($_SESSION['csrf_token']) || $token !== $_SESSION['csrf_token']) {
             echo json_encode(['status' => false, 'message' => 'CSRF token invalid']);
             exit;
@@ -32,6 +43,9 @@ class Auth {
     }
 
     public static function rateLimit() {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
         $key = 'rate_limit_' . $_SERVER['REMOTE_ADDR'];
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = ['count' => 0, 'time' => time()];

@@ -2,7 +2,10 @@
 <html>
 
 <head>
-    <title>Laporan Keuangan</title>
+    <title>Laporan Keuangan - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
@@ -36,7 +39,7 @@
                 btn.prop('disabled', true).text('Memuat...');
                 $('#neracaContent').html('Memuat data...');
 
-                $.get('../backend/public/index.php?path=accounting/neracaSaldo&' + params, function (data) {
+                $.get('../../backend/public/index.php?path=accounting/neracaSaldo&' + params, function (data) {
                     if (data.status && data.data.length) {
                         let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th><th>Debit</th><th>Kredit</th><th>Saldo Akhir</th></tr>';
                         let totalDebit = 0, totalKredit = 0;
@@ -67,7 +70,7 @@
                 btn.prop('disabled', true).text('Memuat...');
                 $('#labaRugiContent').html('Memuat data...');
 
-                $.get('../backend/public/index.php?path=accounting/labaRugi&' + params, function (data) {
+                $.get('../../backend/public/index.php?path=accounting/labaRugi&' + params, function (data) {
                     if (data.status) {
                         let html = '<h4>Pendapatan</h4><table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Jumlah</th></tr>';
                         (data.data.pendapatan || []).forEach(p => {

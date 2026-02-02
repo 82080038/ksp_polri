@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Aset Tetap</title>
+    <title>Aset Tetap - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Aset Tetap</h2>
     <a href="dashboard_pengurus.html">Kembali ke Dashboard</a>
-    
+
     <h3>Tambah Aset Tetap</h3>
     <form id="assetForm">
         <input type="text" name="kode_aset" placeholder="Kode Aset" required><br>
@@ -28,12 +33,12 @@
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadAssets();
 
-            $('#assetForm').on('submit', function(e) {
+            $('#assetForm').on('submit', function (e) {
                 e.preventDefault();
-                $.post('../backend/public/index.php?path=accounting/asset/create', $(this).serialize(), function(data) {
+                $.post('../../backend/public/index.php?path=accounting/asset/create', $(this).serialize(), function (data) {
                     alert(data.message);
                     if (data.status) {
                         $('#assetForm')[0].reset();
@@ -43,7 +48,7 @@
             });
 
             function loadAssets() {
-                $.get('../backend/public/index.php?path=accounting/asset/list', function(data) {
+                $.get('../../backend/public/index.php?path=accounting/asset/list', function (data) {
                     if (data.status) {
                         let html = '<table border="1"><tr><th>Kode</th><th>Nama</th><th>Kategori</th><th>Nilai Perolehan</th><th>Tanggal</th><th>Nilai Buku</th><th>Status</th><th>Aksi</th></tr>';
                         data.data.forEach(a => {
@@ -55,8 +60,8 @@
                 }, 'json');
             }
 
-            window.viewDepreciation = function(id) {
-                $.get('../backend/public/index.php?path=accounting/asset/calculateDepreciation&id=' + id, function(data) {
+            window.viewDepreciation = function (id) {
+                $.get('../../backend/public/index.php?path=accounting/asset/calculateDepreciation&id=' + id, function (data) {
                     if (data.status) {
                         let html = '<h4>Jadwal Depresiasi</h4><table border="1"><tr><th>Tahun</th><th>Depresiasi</th><th>Nilai Buku</th></tr>';
                         data.data.forEach(d => {
@@ -69,8 +74,8 @@
                 }, 'json');
             };
 
-            window.saveDepreciation = function(id) {
-                $.post('../backend/public/index.php?path=accounting/asset/saveDepreciation', {id: id}, function(data) {
+            window.saveDepreciation = function (id) {
+                $.post('../../backend/public/index.php?path=accounting/asset/saveDepreciation', { id: id }, function (data) {
                     alert(data.message);
                 }, 'json');
             };
@@ -81,4 +86,5 @@
         });
     </script>
 </body>
+
 </html>

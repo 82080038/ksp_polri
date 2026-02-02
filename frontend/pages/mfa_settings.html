@@ -3,6 +3,9 @@
 
 <head>
     <title>Multi-Factor Authentication - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .mfa-container {
@@ -306,7 +309,7 @@
 
         function loadMFAStatus() {
             $('#mfaStatusText').text('Memuat status...');
-            $.get('../backend/public/index.php?path=mfa/status', function (data) {
+            $.get('../../backend/public/index.php?path=mfa/status', function (data) {
                 if (data.status) {
                     if (data.data.enabled) {
                         $('#mfaStatusIndicator').removeClass('status-disabled').addClass('status-enabled');
@@ -355,7 +358,7 @@
         function sendEmailChallenge() {
             const btn = $('#emailChallengeBtn');
             btn.prop('disabled', true).text('Mengirim...');
-            $.post('../backend/public/index.php?path=mfa/sendChallenge', { type: 'email' }, function (data) {
+            $.post('../../backend/public/index.php?path=mfa/sendChallenge', { type: 'email' }, function (data) {
                 if (data.status) {
                     alert('Kode verifikasi telah dikirim ke email Anda');
                     $('#verificationForm').show();
@@ -373,7 +376,7 @@
             $('#qrLoading').show().text('Loading QR code...');
             $('#qrCode').hide();
 
-            $.get('../backend/public/index.php?path=mfa/qrCode', function (data) {
+            $.get('../../backend/public/index.php?path=mfa/qrCode', function (data) {
                 if (data.status) {
                     $('#qrCode').attr('src', 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.data.qr_url));
                     $('#qrLoading').hide();
@@ -396,7 +399,7 @@
             const btn = $('#verifyBtn');
             btn.prop('disabled', true).text('Memverifikasi...');
 
-            $.post('../backend/public/index.php?path=mfa/verify', {
+            $.post('../../backend/public/index.php?path=mfa/verify', {
                 code: code,
                 type: selectedMFAType
             }, function (data) {
@@ -420,7 +423,7 @@
                 return;
             }
 
-            $.post('../backend/public/index.php?path=mfa/disable', function (data) {
+            $.post('../../backend/public/index.php?path=mfa/disable', function (data) {
                 if (data.status) {
                     alert('MFA berhasil dinonaktifkan');
                     loadMFAStatus();
@@ -431,7 +434,7 @@
         }
 
         function generateBackupCodes() {
-            $.post('../backend/public/index.php?path=mfa/backupCodes', function (data) {
+            $.post('../../backend/public/index.php?path=mfa/backupCodes', function (data) {
                 if (data.status) {
                     const codes = data.data.backup_codes;
                     let html = '';
@@ -447,7 +450,7 @@
         }
 
         function loadMFASettings() {
-            $.get('../backend/public/index.php?path=mfa/settings', function (data) {
+            $.get('../../backend/public/index.php?path=mfa/settings', function (data) {
                 if (data.status) {
                     let html = '';
                     data.data.users.forEach(user => {
@@ -476,7 +479,7 @@
             const type = prompt('Pilih tipe MFA (email/authenticator):', 'email');
             if (!type) return;
 
-            $.post('../backend/public/index.php?path=mfa/forceEnable', {
+            $.post('../../backend/public/index.php?path=mfa/forceEnable', {
                 user_id: userId,
                 type: type
             }, function (data) {
@@ -492,7 +495,7 @@
         function forceDisableMFA(userId) {
             if (!confirm('Nonaktifkan MFA untuk user ini?')) return;
 
-            $.post('../backend/public/index.php?path=mfa/forceDisable', {
+            $.post('../../backend/public/index.php?path=mfa/forceDisable', {
                 user_id: userId
             }, function (data) {
                 if (data.status) {

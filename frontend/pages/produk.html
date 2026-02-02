@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Katalog Produk</title>
+    <title>Produk - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Katalog Produk</h2>
     <div id="produkList"></div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadProduk();
 
             function loadProduk() {
-                $.get('../backend/public/index.php?path=produk/list', function(data) {
+                $.get('../../backend/public/index.php?path=produk/list', function (data) {
                     if (data.status) {
                         let html = '<div class="produk-grid">';
                         data.data.forEach(p => {
@@ -33,14 +38,15 @@
                 }, 'json');
             }
 
-            $(document).on('click', '.add-to-cart', function() {
+            $(document).on('click', '.add-to-cart', function () {
                 const produkId = $(this).data('id');
                 const qty = 1; // Default qty
-                $.post('../backend/public/index.php?path=cart/add', {produk_id: produkId, qty: qty}, function(data) {
+                $.post('../../backend/public/index.php?path=cart/add', { produk_id: produkId, qty: qty }, function (data) {
                     alert(data.message);
                 }, 'json');
             });
         });
     </script>
 </body>
+
 </html>

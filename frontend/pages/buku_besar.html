@@ -2,7 +2,10 @@
 <html>
 
 <head>
-    <title>Buku Besar</title>
+    <title>Buku Besar - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
@@ -40,7 +43,7 @@
                 btn.prop('disabled', true).text('Memuat...');
                 $('#bukuBesarContent').html('Memuat data...');
 
-                $.get('../backend/public/index.php?path=accounting/bukuBesar&' + params, function (data) {
+                $.get('../../backend/public/index.php?path=accounting/bukuBesar&' + params, function (data) {
                     if (data.status && data.data.length) {
                         let totalDebit = 0, totalKredit = 0;
                         let html = '<table border="1"><tr><th>Tanggal</th><th>Debit</th><th>Kredit</th><th>Saldo</th><th>Ref</th></tr>';
@@ -65,7 +68,7 @@
             });
 
             function loadAccounts() {
-                $.get('../backend/public/index.php?path=accounting/coa/list', function (data) {
+                $.get('../../backend/public/index.php?path=accounting/coa/list', function (data) {
                     if (data.status) {
                         let options = '<option value="">Pilih Akun</option>';
                         data.data.forEach(a => {

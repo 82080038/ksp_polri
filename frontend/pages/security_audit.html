@@ -3,6 +3,9 @@
 
 <head>
     <title>Security Audit Dashboard - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .security-dashboard {
@@ -305,7 +308,7 @@
                 }
             }, 200);
 
-            $.post('../backend/public/index.php?path=security/runAudit', function (data) {
+            $.post('../../backend/public/index.php?path=security/runAudit', function (data) {
                 clearInterval(progressInterval);
                 $('#progressBar').css('width', '100%');
                 $('#runAuditBtn').prop('disabled', false);
@@ -373,7 +376,7 @@
 
         function loadSecuritySettings() {
             $('#settingsTable').html('<tr><td colspan="4">Loading settings...</td></tr>');
-            $.get('../backend/public/index.php?path=security/getSettings', function (data) {
+            $.get('../../backend/public/index.php?path=security/getSettings', function (data) {
                 if (data.status) {
                     let html = '';
                     data.data.forEach(setting => {
@@ -410,7 +413,7 @@
             const $btn = $(btn);
             $btn.prop('disabled', true).text('Saving...');
 
-            $.post('../backend/public/index.php?path=security/updateSetting', {
+            $.post('../../backend/public/index.php?path=security/updateSetting', {
                 key: key,
                 value: value
             }, function (data) {
@@ -428,7 +431,7 @@
 
         function loadAuditLogs() {
             $('#auditLogsTable').html('<tr><td colspan="5">Loading logs...</td></tr>');
-            $.get('../backend/public/index.php?path=security/getAuditLogs&limit=20', function (data) {
+            $.get('../../backend/public/index.php?path=security/getAuditLogs&limit=20', function (data) {
                 if (data.status && data.data.logs.length > 0) {
                     let html = '';
                     data.data.logs.forEach(log => {

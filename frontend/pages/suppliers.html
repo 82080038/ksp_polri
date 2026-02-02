@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Daftar Supplier</title>
+    <title>Suppliers - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <h2>Daftar Supplier</h2>
     <div id="supplierList"></div>
 
     <script src="../assets/js/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             loadSuppliers();
 
             function loadSuppliers() {
-                $.get('../backend/public/index.php?path=supplier/list', function(data) {
+                $.get('../../backend/public/index.php?path=supplier/list', function (data) {
                     if (data.status) {
                         let html = '<table><tr><th>Nama Perusahaan</th><th>Kategori</th><th>Telepon</th><th>Email</th></tr>';
                         data.data.forEach(s => {
@@ -28,4 +33,5 @@
         });
     </script>
 </body>
+
 </html>

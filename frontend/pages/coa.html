@@ -2,7 +2,10 @@
 <html>
 
 <head>
-    <title>Chart of Accounts</title>
+    <title>Chart of Accounts - KSP POLRI</title>
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
@@ -45,7 +48,7 @@
                 btn.prop('disabled', true).text('Memproses...');
                 $('#formMessage').text('');
 
-                $.post(`../backend/public/index.php?path=${path}`, $(this).serialize(), function (data) {
+                $.post(`../../backend/public/index.php?path=${path}`, $(this).serialize(), function (data) {
                     $('#formMessage').text(data.message || '');
                     if (data.status) {
                         resetForm();
@@ -70,7 +73,7 @@
 
             function loadCoa() {
                 $('#coaList').html('Memuat data...');
-                $.get('../backend/public/index.php?path=accounting/coa/list', function (data) {
+                $.get('../../backend/public/index.php?path=accounting/coa/list', function (data) {
                     if (data.status && data.data.length) {
                         let html = '<table border="1"><tr><th>Kode</th><th>Nama Akun</th><th>Kategori</th><th>Saldo Awal</th><th>Aksi</th></tr>';
                         data.data.forEach(a => {
@@ -97,7 +100,7 @@
 
             $('#coaList').on('click', '.btn-edit', function () {
                 const id = $(this).data('id');
-                $.get('../backend/public/index.php?path=accounting/coa/detail&id=' + id, function (res) {
+                $.get('../../backend/public/index.php?path=accounting/coa/detail&id=' + id, function (res) {
                     if (res.status) {
                         $('#coaId').val(res.data.id);
                         $('#kodeAkun').val(res.data.kode_akun);
@@ -114,7 +117,7 @@
             $('#coaList').on('click', '.btn-delete', function () {
                 const id = $(this).data('id');
                 if (!confirm('Hapus kode akun ini?')) return;
-                $.post('../backend/public/index.php?path=accounting/coa/delete', { id: id }, function (res) {
+                $.post('../../backend/public/index.php?path=accounting/coa/delete', { id: id }, function (res) {
                     alert(res.message || '');
                     if (res.status) loadCoa();
                 }, 'json');

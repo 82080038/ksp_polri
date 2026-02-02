@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <title>Backup Management - KSP POLRI</title>
     <link rel="stylesheet" href="../assets/css/bootstrap-custom.css">
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -271,7 +274,7 @@
             $('#totalBackups').text('...');
             $('#totalSize').text('...');
             $('#lastBackup').text('...');
-            $.get('../backend/public/index.php?path=backup/stats', function (data) {
+            $.get('../../backend/public/index.php?path=backup/stats', function (data) {
                 if (data.status) {
                     const stats = data.data;
                     $('#totalBackups').text(stats.total_backups);
@@ -305,7 +308,7 @@
                 }
             }, 1000);
 
-            $.post('../backend/public/index.php?path=backup/run', function (data) {
+            $.post('../../backend/public/index.php?path=backup/run', function (data) {
                 clearInterval(progressInterval);
 
                 if (data.status) {
@@ -344,7 +347,7 @@
                 </div>
             `);
 
-            $.get('../backend/public/index.php?path=backup/list', function (data) {
+            $.get('../../backend/public/index.php?path=backup/list', function (data) {
                 if (data.status) {
                     const backups = data.data.backups;
 
@@ -400,7 +403,7 @@
         }
 
         function downloadBackup(filename) {
-            window.location.href = `../backend/public/index.php?path=backup/download&file=${encodeURIComponent(filename)}`;
+            window.location.href = `../../backend/public/index.php?path=backup/download&file=${encodeURIComponent(filename)}`;
         }
 
         function deleteBackup(filename) {
@@ -408,7 +411,7 @@
                 return;
             }
 
-            $.post('../backend/public/index.php?path=backup/delete', { file: filename }, function (data) {
+            $.post('../../backend/public/index.php?path=backup/delete', { file: filename }, function (data) {
                 if (data.status) {
                     loadBackupFiles();
                     loadBackupStats();
@@ -424,7 +427,7 @@
         function restoreBackup(filename) {
             if (!confirm(`Restore backup "${filename}"? Data sekarang akan ditimpa.`)) return;
             $('#backupFilesList').prepend('<div class="text-info">Memulai restore...</div>');
-            $.post('../backend/public/index.php?path=backup/restore', { file: filename }, function (data) {
+            $.post('../../backend/public/index.php?path=backup/restore', { file: filename }, function (data) {
                 if (data.status) {
                     alert('Restore berhasil. Sistem mungkin perlu beberapa saat.');
                 } else {
@@ -436,7 +439,7 @@
         }
 
         function checkPermissions() {
-            $.get('../backend/public/index.php?path=backup/checkPermissions', function (data) {
+            $.get('../../backend/public/index.php?path=backup/checkPermissions', function (data) {
                 if (data.status) {
                     if (!data.data.ready) {
                         const issues = data.data.issues;

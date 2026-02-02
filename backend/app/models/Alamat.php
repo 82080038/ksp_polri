@@ -4,33 +4,67 @@ require_once __DIR__ . '/../../config/alamat_db.php';
 
 class Alamat {
     private $pdo;
+    private static $cache = [];
+    private static $cacheExpiry = 3600; // 1 hour
     
     public function __construct() {
         $this->pdo = AlamatDB::getConnection();
     }
     
     /**
+     * Get cached data or fetch from database
+     */
+    private function getCached($key, $callback) {
+        $now = time();
+        
+        if (isset(self::$cache[$key]) && (self::$cache[$key]['expiry'] > $now)) {
+            return self::$cache[$key]['data'];
+        }
+        
+        $data = $callback();
+        self::$cache[$key] = [
+            'data' => $data,
+            'expiry' => $now + self::$cacheExpiry
+        ];
+        
+        return $data;
+    }
+    
+    /**
+     * Clear cache for specific key
+     */
+    private function clearCache($key = null) {
+        if ($key) {
+            unset(self::$cache[$key]);
+        } else {
+            self::$cache = [];
+        }
+    }
+    
+    /**
      * Get semua provinsi
      */
     public function getProvinsi() {
-        if (!$this->pdo) return [];
-        
-        try {
-            // Coba struktur tabel yang umum
-            $tables = ['provinsi', 'provinces', 'propinsi', 'wilayah_provinsi'];
-            foreach ($tables as $table) {
-                try {
-                    $stmt = $this->pdo->query("SELECT * FROM $table ORDER BY nama");
-                    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-                } catch (PDOException $e) {
-                    continue;
+        return $this->getCached('provinsi', function() {
+            if (!$this->pdo) return [];
+            
+            try {
+                // Coba struktur tabel yang umum
+                $tables = ['provinsi', 'provinces', 'propinsi', 'wilayah_provinsi'];
+                foreach ($tables as $table) {
+                    try {
+                        $stmt = $this->pdo->query("SELECT id, nama FROM $table ORDER BY nama");
+                        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    } catch (PDOException $e) {
+                        continue;
+                    }
                 }
+                return [];
+            } catch (Exception $e) {
+                error_log("Error getProvinsi: " . $e->getMessage());
+                return [];
             }
-            return [];
-        } catch (Exception $e) {
-            error_log("Error getProvinsi: " . $e->getMessage());
-            return [];
-        }
+        });
     }
     
     /**

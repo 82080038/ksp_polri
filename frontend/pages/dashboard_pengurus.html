@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:">
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2196F3">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -152,7 +155,7 @@
     <script>
         function processTunggakan() {
             if (confirm('Kirim notifikasi tunggakan ke semua anggota yang menunggak?')) {
-                $.post('../backend/public/index.php?path=notification/processAllTunggakan', function (data) {
+                $.post('../../backend/public/index.php?path=notification/processAllTunggakan', function (data) {
                     alert(data.message);
                 }, 'json');
             }
@@ -161,7 +164,7 @@
         function broadcastSHU() {
             const tahun = prompt('Masukkan tahun SHU:');
             if (tahun) {
-                $.post('../backend/public/index.php?path=notification/broadcastShu', { tahun: tahun }, function (data) {
+                $.post('../../backend/public/index.php?path=notification/broadcastShu', { tahun: tahun }, function (data) {
                     alert(data.message);
                 }, 'json');
             }
