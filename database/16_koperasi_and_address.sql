@@ -25,12 +25,12 @@ CREATE TABLE IF NOT EXISTS koperasi (
 
 -- Tambah kolom alamat ke tabel users
 ALTER TABLE users 
-ADD COLUMN IF NOT EXISTS Prop_desa INT COMMENT 'ID desa/kelurahan dari alamat_db',
-ADD COLUMN IF NOT EXISTS alamat_lengkap TEXT COMMENT 'Alamat lengkap tambahan',
-ADD COLUMN IF NOT EXISTS koperasi_id INT COMMENT 'ID koperasi yang terdaftar',
-ADD COLUMN IF NOT EXISTS nama_lengkap VARCHAR(100),
-ADD COLUMN IF NOT EXISTS email VARCHAR(100),
-ADD COLUMN IF NOT EXISTS telepon VARCHAR(50);
+ADD COLUMN Prop_desa INT COMMENT 'ID desa/kelurahan dari alamat_db',
+ADD COLUMN alamat_lengkap TEXT COMMENT 'Alamat lengkap tambahan',
+ADD COLUMN koperasi_id INT COMMENT 'ID koperasi yang terdaftar',
+ADD COLUMN nama_lengkap VARCHAR(100),
+ADD COLUMN email VARCHAR(100),
+ADD COLUMN telepon VARCHAR(50);
 
 -- Tambah foreign key untuk koperasi_id di users
 ALTER TABLE users 
@@ -40,8 +40,8 @@ ON DELETE SET NULL;
 
 -- Tambah kolom alamat ke tabel anggota (jika diperlukan)
 ALTER TABLE anggota 
-ADD COLUMN IF NOT EXISTS Prop_desa INT COMMENT 'ID desa/kelurahan dari alamat_db',
-ADD COLUMN IF NOT EXISTS alamat_lengkap TEXT COMMENT 'Alamat lengkap tambahan';
+ADD COLUMN Prop_desa INT COMMENT 'ID desa/kelurahan dari alamat_db',
+ADD COLUMN alamat_lengkap TEXT COMMENT 'Alamat lengkap tambahan';
 
 -- Insert data koperasi awal (untuk testing)
 -- Hapus baris ini jika tidak ingin data awal
